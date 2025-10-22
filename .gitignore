@@ -1,0 +1,40 @@
+# --------------------
+# 操作系统和IDE文件
+# --------------------
+.DS_Store
+.vscode/
+
+# --------------------
+# Python/后端相关
+# --------------------
+# 虚拟环境目录
+venv/
+.venv/
+__pycache__/
+*.pyc
+*.pyo
+
+# 依赖文件
+pip-log.txt
+pip-delete-this-arg-in-future.log
+
+# 运行时和配置
+*.env 
+.env # 忽略环境变量文件
+logs/
+
+# --------------------
+# 模型和数据（重要！）
+# --------------------
+# 忽略大型模型权重文件和临时数据
+/backend/models/*.pt
+/backend/models/*.h5
+/backend/data/
+
+# --------------------
+# 前端/构建相关
+# --------------------
+# 如果未来使用npm/yarn等，需要忽略
+node_modules/
+dist/
+build/
