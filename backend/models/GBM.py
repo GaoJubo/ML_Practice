@@ -39,7 +39,7 @@ class BasicClassifier(DecisionTreeRegressor):
         if any([
             depth>=self.max_depth,
             X.shape[0]<self.min_samples_split,
-            self._calculate_loss(y,p)==0
+            self._calculate_loss(y)==0
         ]) :
             return Node(value=self._calculate_leaf_value(y,p))
         
@@ -112,7 +112,6 @@ class GBM_R(GBM):
         X=np.asarray(X,dtype=np.float64)
         if X.shape[1]!=self._X_dim:
             raise ValueError('预测数据的特征数量与训练数据不符合')
-        n_samples=X.shape[0]
         
         def meta_predict(tree,X):
             return tree.predict(X)
@@ -127,19 +126,106 @@ class GBM_R(GBM):
         result+=self.F0
 
         return self.F0
+    
+class GBM_C(GBM):
+    def _sigmoid(self,z):
+        return 1.0/(1.0+np.exp(-np.clip(z,-700,700)))
+    
+    def _intialF0(self,y):
+        p_init=np.mean(y)
+        return np.log(p_init/(1-p_init))
+    
+
+    def fit(self,X,y):
+        X,y=np.asarray(X,np.float64),np.asarray(y,np.float64)
+        X,y=check_Feature_Label_Alignment(X,y)
+        self._X_dim=X.shape[1]
+
+        self._trees=[]
+
+        self.F0=self._intialF0(y)
+        print(f'y.shape:{y.shape}')
+        F_current=np.full(y.shape,self.F0)
+        print(f'F_current{F_current.shape}')
+        print(f'{self.F0}')
+
+        for i in range(self.n_estimators):
+            p_current=self._sigmoid(F_current)
+
+            res=y-p_current
+            tree=BasicClassifier(max_depth=self.maxth_depth)
+            tree.fit(X,res,p_current)
+
+            F_i=tree.predict(X)
+            self._trees.append(tree)
+
+            # print(F_current.shape)
+            # print((self.learning_rate*F_i).shape)
+            delta=self.learning_rate*F_i
+            F_current=F_current+delta.reshape(-1,1)
+            if self.verbose: print(f'构建第{i}棵基础树')
+
+    
+        return self
+    
+    def _predict_prob(self,X):
+        X=np.asarray(X,np.float64)
+        if X.shape[1]!=self._X_dim:
+            raise ValueError('预测数据的特征数与训练数据不符')
+        
+        def meta_predict(tree,X):
+            return tree.predict(X)
+        
+        results_list=Parallel(n_jobs=self.n_jobs)(
+            delayed(meta_predict)(tree,X)
+            for tree in self._trees
+        )
+
+        results_list=np.array(results_list)
+        result=np.sum(results_list,axis=0)*self.learning_rate
+        result+=self.F0
+
+        return self._sigmoid(result)
+    
+    def predict(self,X,threshold=0.5):
+        X=np.asarray(X,np.float64)
+        if X.shape[1]!=self._X_dim:
+            raise ValueError('预测数据的特征数与训练数据不符')
+        proba=self._predict_prob(X)
+        return (proba>=threshold).astype(int)
+
+
+        
+
         
         
+
+
+
+
+
 
 
 if __name__=='__main__':
-    X_r=np.random.rand(1000,20)
-    y_r=np.random.rand(1000,2)
+    # X_r=np.random.rand(1000,20)
+    # y_r=np.random.rand(1000,1)
 
-    model_r=GBM_R(n_estimators=5,verbose=True)
-    model_r.fit(X_r,y_r)
-    y_hat=model_r.predict(X_r)
+    # model_r=GBM_R(n_estimators=5,verbose=True)
+    # model_r.fit(X_r,y_r)
+    # y_hat=model_r.predict(X_r)
 
-    print(f'回归GBM的mse:{np.mean((y_hat-y_r)**2)}')
+    # print(f'回归GBM的mse:{np.mean((y_hat-y_r)**2)}')
+
+    data=np.load(r'E:\someShy\ML_Practice\backend\dataset\mushroom.npy')
+    X=data[:,1:]
+    y=data[:,0]
+
+    model_c=GBM_C(n_estimators=5,verbose=True)
+    model_c.fit(X,y)
+    y_hat=model_c.predict(X)
+    print(f'二分类GBM的准确率为{np.mean((y_hat==y).astype(int))}')
+
+    
 
 
 
