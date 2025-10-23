@@ -1,7 +1,5 @@
 import numpy as np
 from abc import ABC, abstractmethod
-import sys
-print(sys.path)
 from backend.models.DecisionTree import Node,DecisionTreeClassifier,DecisionTreeRegressor
 
 class RandomSplitMixin:
@@ -13,6 +11,7 @@ class RandomSplitMixin:
         迭代最佳划分
         '''
         m,n_features=X.shape
+
 
         if m<=1:
             #就一个样本,无法划分
