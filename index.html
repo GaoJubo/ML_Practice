@@ -1,0 +1,1011 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>机器学习算法展示平台</title>
+    <link href="https://autoglm-api.zhipuai.cn/ppt-proxy/https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://autoglm-api.zhipuai.cn/ppt-proxy/https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.3/font/bootstrap-icons.css">
+    <script src="https://autoglm-api.zhipuai.cn/ppt-proxy/https://cdn.jsdelivr.net/npm/vue@3.2.47/dist/vue.global.js"></script>
+    <script src="https://autoglm-api.zhipuai.cn/ppt-proxy/https://cdn.jsdelivr.net/npm/echarts@5.4.1/dist/echarts.min.js"></script>
+    <style>
+        :root {
+            --primary-color: #4361ee;
+            --secondary-color: #3f37c9;
+            --neutral-color: #f8f9fa;
+            --text-color: #212529;
+            --border-radius: 10px;
+            --box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        body {
+            font-family: 'Inter', 'Noto Sans', 'Microsoft YaHei', sans-serif;
+            color: var(--text-color);
+            background-color: #f5f7ff;
+            margin: 0;
+            padding: 0;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            background-color: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            padding: 20px;
+            margin-bottom: 24px;
+            text-align: center;
+        }
+
+        .header h1 {
+            color: var(--primary-color);
+            margin-bottom: 10px;
+            font-size: 2rem;
+        }
+
+        .header p {
+            color: #6c757d;
+            margin-bottom: 0;
+        }
+
+        .grid-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            grid-template-rows: auto auto;
+            gap: 24px;
+            margin-bottom: 40px;
+        }
+
+        .grid-item {
+            background-color: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            padding: 24px;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .grid-item h2 {
+            color: var(--secondary-color);
+            margin-bottom: 20px;
+            font-size: 1.5rem;
+            border-bottom: 2px solid var(--neutral-color);
+            padding-bottom: 10px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: var(--text-color);
+        }
+
+        .form-control, .form-select {
+            border-radius: 8px;
+            border: 1px solid #ced4da;
+            padding: 10px 15px;
+            transition: all 0.3s;
+        }
+
+        .form-control:focus, .form-select:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 0.25rem rgba(67, 97, 238, 0.25);
+        }
+
+        .btn-primary {
+            background-color: var(--primary-color);
+            border-color: var(--primary-color);
+            border-radius: 8px;
+            padding: 10px 20px;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .btn-primary:hover {
+            background-color: var(--secondary-color);
+            border-color: var(--secondary-color);
+        }
+
+        .progress {
+            height: 25px;
+            border-radius: 8px;
+            margin-top: 20px;
+        }
+
+        .progress-bar {
+            background-color: var(--primary-color);
+            border-radius: 8px;
+        }
+
+        .chart-container {
+            width: 100%;
+            height: 400px;
+            margin-top: 20px;
+        }
+
+        .history-item {
+            background-color: var(--neutral-color);
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 15px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .history-item:hover {
+            background-color: #e9ecef;
+            transform: translateY(-2px);
+        }
+
+        .history-item.active {
+            background-color: rgba(67, 97, 238, 0.1);
+            border-left: 4px solid var(--primary-color);
+        }
+
+        .history-item-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .history-item-title {
+            font-weight: 600;
+            color: var(--secondary-color);
+        }
+
+        .history-item-date {
+            font-size: 0.85rem;
+            color: #6c757d;
+        }
+
+        .history-item-metrics {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .metric-badge {
+            background-color: white;
+            border-radius: 20px;
+            padding: 5px 12px;
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+
+        .nav-tabs {
+            margin-bottom: 20px;
+        }
+
+        .nav-tabs .nav-link {
+            color: var(--text-color);
+            font-weight: 500;
+            border-radius: 8px 8px 0 0;
+        }
+
+        .nav-tabs .nav-link.active {
+            color: var(--primary-color);
+            background-color: white;
+            border-color: #dee2e6 #dee2e6 #fff;
+        }
+
+        .tab-content {
+            background-color: white;
+            border-radius: 0 0 var(--border-radius) var(--border-radius);
+            padding: 20px;
+            box-shadow: var(--box-shadow);
+        }
+
+        .param-group {
+            background-color: var(--neutral-color);
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 15px;
+        }
+
+        .param-group-title {
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: var(--secondary-color);
+        }
+
+        .param-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .param-item label {
+            flex: 1;
+            margin-bottom: 0;
+        }
+
+        .param-item input {
+            flex: 2;
+        }
+
+        .footer {
+            text-align: center;
+            padding: 20px;
+            margin-top: 40px;
+            color: #6c757d;
+            font-size: 0.9rem;
+        }
+
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(255, 255, 255, 0.8);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+        }
+
+        .loading-spinner {
+            width: 50px;
+            height: 50px;
+            border: 5px solid var(--neutral-color);
+            border-top: 5px solid var(--primary-color);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .alert {
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .metric-card {
+            background-color: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            padding: 15px;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        .metric-value {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--primary-color);
+        }
+
+        .metric-label {
+            font-size: 0.9rem;
+            color: #6c757d;
+        }
+
+        @media (max-width: 992px) {
+            .grid-container {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="app">
+        <div class="container">
+            <div class="header">
+                <h1>机器学习算法展示平台</h1>
+                <p>交互式机器学习算法性能比较与可视化工具</p>
+            </div>
+
+            <div class="grid-container">
+                <!-- 左上区域：任务选择模块 -->
+                <div class="grid-item">
+                    <h2><i class="bi bi-list-task"></i> 任务选择</h2>
+                    <div class="form-group">
+                        <label class="form-label">选择任务类型</label>
+                        <div class="btn-group w-100" role="group">
+                            <button type="button" class="btn btn-outline-primary" 
+                                    :class="{ active: currentTask === 'classification' }"
+                                    @click="currentTask = 'classification'">
+                                <i class="bi bi-tags"></i> 分类任务
+                            </button>
+                            <button type="button" class="btn btn-outline-primary" 
+                                    :class="{ active: currentTask === 'regression' }"
+                                    @click="currentTask = 'regression'">
+                                <i class="bi bi-graph-up"></i> 回归任务
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">任务描述</label>
+                        <div class="alert alert-info">
+                            <p v-if="currentTask === 'classification'">
+                                分类任务是指将输入数据划分到预定义的类别中。本平台支持多种分类算法，包括决策树、随机森林、支持向量机等。
+                            </p>
+                            <p v-else>
+                                回归任务是预测连续数值输出的任务。本平台支持多种回归算法，包括线性回归、决策树回归、随机森林回归等。
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">可用数据集</label>
+                        <ul class="list-group">
+                            <li v-for="dataset in availableDatasets" :key="dataset" class="list-group-item d-flex justify-content-between align-items-center">
+                                {{ dataset }}
+                                <span class="badge bg-primary rounded-pill">{{ currentTask === 'classification' ? '分类' : '回归' }}</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- 右上区域：数据集与模型配置模块 -->
+                <div class="grid-item">
+                    <h2><i class="bi bi-gear"></i> 配置与控制</h2>
+                    
+                    <div class="form-group">
+                        <label class="form-label">数据集选择</label>
+                        <select class="form-select" v-model="config.dataset_name">
+                            <option v-for="dataset in availableDatasets" :key="dataset" :value="dataset">
+                                {{ dataset }}
+                            </option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">模型选择</label>
+                        <select class="form-select" v-model="config.model_name">
+                            <option v-for="model in availableModels" :key="model" :value="model">
+                                {{ model }}
+                            </option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">数据集分割比例: {{ config.split_ratio * 100 }}%</label>
+                        <input type="range" class="form-range" min="0.5" max="0.9" step="0.05" v-model="config.split_ratio">
+                        <div class="d-flex justify-content-between">
+                            <small>训练集: {{ Math.round(config.split_ratio * 100) }}%</small>
+                            <small>测试集: {{ Math.round((1 - config.split_ratio) * 100) }}%</small>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" id="pcaSwitch" v-model="config.use_pca">
+                            <label class="form-check-label" for="pcaSwitch">使用PCA降维</label>
+                        </div>
+                    </div>
+
+                    <div class="form-group" v-if="config.use_pca">
+                        <label class="form-label">PCA组件数量</label>
+                        <input type="number" class="form-control" min="1" max="10" v-model="config.pca_params.n_components">
+                    </div>
+
+                    <div class="mt-auto">
+                        <button class="btn btn-primary w-100" @click="runTraining" :disabled="isLoading">
+                            <i class="bi bi-play-circle"></i> 运行训练
+                        </button>
+                        
+                        <div class="progress" v-if="isLoading">
+                            <div class="progress-bar" role="progressbar" 
+                                 :style="{ width: progressPercentage + '%' }"
+                                 :aria-valuenow="progressPercentage" aria-valuemin="0" aria-valuemax="100">
+                                {{ progressPercentage.toFixed(1) }}%
+                            </div>
+                        </div>
+                        <div class="text-center mt-2" v-if="isLoading">
+                            预计剩余时间: {{ remainingTime }}秒
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 左下区域：超参数配置模块 -->
+                <div class="grid-item">
+                    <h2><i class="bi bi-sliders"></i> 超参数配置</h2>
+                    
+                    <div v-if="config.model_name">
+                        <div class="param-group" v-for="(params, category) in modelParams" :key="category">
+                            <div class="param-group-title">{{ category }}</div>
+                            <div class="param-item" v-for="(value, key) in params" :key="key">
+                                <label>{{ key }}</label>
+                                <input type="text" class="form-control" v-model="config.model_params[key]" :placeholder="value">
+                            </div>
+                        </div>
+                    </div>
+                    <div v-else class="alert alert-warning">
+                        请先选择一个模型以查看其超参数配置
+                    </div>
+                </div>
+
+                <!-- 右下区域：结果展示模块 -->
+                <div class="grid-item">
+                    <h2><i class="bi bi-graph-up"></i> 结果展示</h2>
+                    
+                    <ul class="nav nav-tabs" id="resultTabs" role="tablist">
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link active" id="radar-tab" data-bs-toggle="tab" data-bs-target="#radar" type="button" role="tab" aria-controls="radar" aria-selected="true">
+                                雷达图
+                            </button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="detail-tab" data-bs-toggle="tab" data-bs-target="#detail" type="button" role="tab" aria-controls="detail" aria-selected="false">
+                                详细图表
+                            </button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="history-tab" data-bs-toggle="tab" data-bs-target="#history" type="button" role="tab" aria-controls="history" aria-selected="false">
+                                历史记录
+                            </button>
+                        </li>
+                    </ul>
+                    
+                    <div class="tab-content" id="resultTabContent">
+                        <!-- 雷达图标签页 -->
+                        <div class="tab-pane fade show active" id="radar" role="tabpanel" aria-labelledby="radar-tab">
+                            <div class="chart-container" id="radarChart"></div>
+                        </div>
+                        
+                        <!-- 详细图表标签页 -->
+                        <div class="tab-pane fade" id="detail" role="tabpanel" aria-labelledby="detail-tab">
+                            <div v-if="latestResult">
+                                <div class="row mb-4">
+                                    <div class="col-md-3 col-sm-6" v-for="(value, metric) in latestResult.metrics" :key="metric">
+                                        <div class="metric-card">
+                                            <div class="metric-value">{{ typeof value === 'number' ? value.toFixed(4) : value }}</div>
+                                            <div class="metric-label">{{ metric }}</div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="chart-container" id="detailChart"></div>
+                            </div>
+                            <div v-else class="alert alert-info">
+                                暂无结果数据，请先运行训练
+                            </div>
+                        </div>
+                        
+                        <!-- 历史记录标签页 -->
+                        <div class="tab-pane fade" id="history" role="tabpanel" aria-labelledby="history-tab">
+                            <div v-if="history.length > 0">
+                                <div class="history-item" 
+                                     v-for="(item, index) in history" 
+                                     :key="index"
+                                     :class="{ active: selectedHistoryIndex === index }"
+                                     @click="selectHistoryItem(index)">
+                                    <div class="history-item-header">
+                                        <div class="history-item-title">{{ item.model_name }} - {{ item.dataset_name }}</div>
+                                        <div class="history-item-date">{{ formatDate(item.timestamp) }}</div>
+                                    </div>
+                                    <div class="history-item-metrics">
+                                        <span class="metric-badge" v-for="(value, metric) in item.metrics" :key="metric">
+                                            {{ metric }}: {{ typeof value === 'number' ? value.toFixed(4) : value }}
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div v-else class="alert alert-info">
+                                暂无历史记录，请先运行训练
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="footer">
+                作者: AutoGLM (网页内容由AI生成) Copyright © 2025 AutoGLM. 保留所有权利。
+            </div>
+        </div>
+
+        <!-- 加载中遮罩 -->
+        <div class="loading-overlay" v-if="isLoading">
+            <div class="loading-spinner"></div>
+        </div>
+    </div>
+
+    <script src="https://autoglm-api.zhipuai.cn/ppt-proxy/https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        const { createApp, ref, reactive, computed, watch, onMounted } = Vue;
+
+        createApp({
+            setup() {
+                // 状态管理
+                const currentTask = ref('classification');
+                const isLoading = ref(false);
+                const elapsedTime = ref(0);
+                const estimatedTime = ref(0);
+                const selectedHistoryIndex = ref(-1);
+                const radarChart = ref(null);
+                const detailChart = ref(null);
+                
+                // 配置信息
+                const config = reactive({
+                    task_type: 'classification',
+                    dataset_name: 'iris',
+                    model_name: 'DecisionTreeClassifier',
+                    split_ratio: 0.7,
+                    use_pca: false,
+                    pca_params: { n_components: 2 },
+                    model_params: {}
+                });
+
+                // 历史记录
+                const history = ref([]);
+                const latestResult = ref(null);
+
+                // 计算属性
+                const availableDatasets = computed(() => {
+                    return currentTask.value === 'classification' 
+                        ? ['iris', 'mushroom', 'titanic'] 
+                        : ['auto_mpg', 'california_housing', 'diabetes'];
+                });
+
+                const availableModels = computed(() => {
+                    return currentTask.value === 'classification'
+                        ? ['DecisionTreeClassifier', 'GBM_C', 'KMeans', 'KnnClassifier', 'LogisticRegression', 'NaiveBayes', 'RandomForestClassifier', 'SVM']
+                        : ['GBM_R', 'DecisionTreeRegressor', 'KnnRegressor', 'LinearRegression', 'RandomForestRegressor'];
+                });
+
+                const progressPercentage = computed(() => {
+                    if (estimatedTime.value === 0) return 0;
+                    return Math.min(99, (elapsedTime.value / estimatedTime.value) * 100);
+                });
+
+                const remainingTime = computed(() => {
+                    if (estimatedTime.value === 0) return '计算中...';
+                    const remaining = estimatedTime.value - elapsedTime.value;
+                    return remaining > 0 ? Math.ceil(remaining) : '即将完成';
+                });
+
+                const modelParams = computed(() => {
+                    // 根据当前选择的模型返回对应的超参数配置
+                    const params = {};
+                    
+                    // 这里简化处理，实际应用中应该从后端获取
+                    if (config.model_name.includes('Tree')) {
+                        params['树参数'] = {
+                            'max_depth': 'null',
+                            'min_samples_split': '2',
+                            'min_samples_leaf': '1'
+                        };
+                    }
+                    
+                    if (config.model_name.includes('RandomForest')) {
+                        params['森林参数'] = {
+                            'n_estimators': '100',
+                            'max_features': 'sqrt'
+                        };
+                        params['树参数'] = {
+                            'max_depth': 'null',
+                            'min_samples_split': '2',
+                            'min_samples_leaf': '1'
+                        };
+                    }
+                    
+                    if (config.model_name.includes('SVM')) {
+                        params['SVM参数'] = {
+                            'C': '1.0',
+                            'kernel': 'rbf',
+                            'gamma': 'scale'
+                        };
+                    }
+                    
+                    if (config.model_name.includes('Knn')) {
+                        params['KNN参数'] = {
+                            'n_neighbors': '5',
+                            'weights': 'uniform',
+                            'algorithm': 'auto'
+                        };
+                    }
+                    
+                    if (config.model_name.includes('Linear')) {
+                        params['线性参数'] = {
+                            'fit_intercept': 'true',
+                            'normalize': 'false'
+                        };
+                    }
+                    
+                    if (config.model_name.includes('GBM')) {
+                        params['GBM参数'] = {
+                            'n_estimators': '100',
+                            'learning_rate': '0.1',
+                            'max_depth': '3'
+                        };
+                    }
+                    
+                    return params;
+                });
+
+                // 监听器
+                watch(currentTask, (newTask) => {
+                    config.task_type = newTask;
+                    // 更新数据集和模型选择
+                    config.dataset_name = availableDatasets.value[0];
+                    config.model_name = availableModels.value[0];
+                });
+
+                watch(config.model_name, () => {
+                    // 重置模型参数
+                    config.model_params = {};
+                });
+
+                // 方法
+                const fetchConfig = async () => {
+                    // 模拟从后端获取配置信息
+                    // 实际应用中应该调用 API: GET /api/v1/config
+                    return new Promise((resolve) => {
+                        setTimeout(() => {
+                            resolve({
+                                TASK_MODELS: {
+                                    "classification": ["DecisionTreeClassifier", "GBM_C", "KMeans", "KnnClassifier", "LogisticRegression", "NaiveBayes", "RandomForestClassifier", "SVM"],
+                                    "regression": ["GBM_R", "DecisionTreeRegressor", "KnnRegressor", "LinearRegression", "RandomForestRegressor"]
+                                },
+                                TASK_DATASETS: {
+                                    "classification": ["iris", "mushroom", "titanic"],
+                                    "regression": ["auto_mpg", "california_housing", "diabetes"]
+                                },
+                                CLASSIFICATION_METRICS: ["Accuracy", "Precision", "Recall", "F1 Score"],
+                                REGRESSION_METRICS: ["MSE", "RMSE", "MAE", "R2 Score"],
+                                PCA_PARAMS: {
+                                    "n_components": 2
+                                },
+                                BASELINE_TIMES: {
+                                    "DecisionTreeClassifier_iris": 0.05,
+                                    "SVM_california_housing": 2.5,
+                                    "LinearRegression_diabetes": 0.03,
+                                    "RandomForestClassifier_mushroom": 0.8
+                                }
+                            });
+                        }, 500);
+                    });
+                };
+
+                const runTraining = async () => {
+                    if (isLoading.value) return;
+                    
+                    isLoading.value = true;
+                    elapsedTime.value = 0;
+                    
+                    // 计算预估时间
+                    const modelDatasetKey = `${config.model_name}_${config.dataset_name}`;
+                    const baselineTime = 2.0; // 默认基准时间，实际应用中应该从配置中获取
+                    estimatedTime.value = baselineTime * config.split_ratio * (config.use_pca ? 1.2 : 1) * 1.5; // 简单估算
+                    
+                    // 启动计时器
+                    const timer = setInterval(() => {
+                        elapsedTime.value += 0.1;
+                    }, 100);
+                    
+                    try {
+                        // 模拟API调用
+                        // 实际应用中应该调用 API: POST /api/v1/train
+                        const result = await simulateTraining(config);
+                        
+                        // 添加到历史记录
+                        const historyItem = {
+                            ...result,
+                            timestamp: new Date()
+                        };
+                        
+                        if (config.task_type === 'classification') {
+                            history.value.unshift(historyItem);
+                            if (history.value.length > 5) history.value.pop();
+                        } else {
+                            // 在实际应用中，应该分别存储分类和回归的历史记录
+                            history.value.unshift(historyItem);
+                            if (history.value.length > 5) history.value.pop();
+                        }
+                        
+                        latestResult.value = result;
+                        selectedHistoryIndex.value = 0;
+                        
+                        // 更新图表
+                        updateRadarChart();
+                        updateDetailChart();
+                    } catch (error) {
+                        console.error('训练失败:', error);
+                        alert('训练失败，请检查参数配置');
+                    } finally {
+                        clearInterval(timer);
+                        isLoading.value = false;
+                    }
+                };
+
+                const simulateTraining = (config) => {
+                    // 模拟训练过程
+                    return new Promise((resolve) => {
+                        setTimeout(() => {
+                            // 生成模拟结果
+                            const metrics = {};
+                            
+                            if (config.task_type === 'classification') {
+                                metrics['Accuracy'] = 0.7 + Math.random() * 0.3;
+                                metrics['Precision'] = 0.7 + Math.random() * 0.3;
+                                metrics['Recall'] = 0.7 + Math.random() * 0.3;
+                                metrics['F1 Score'] = 0.7 + Math.random() * 0.3;
+                            } else {
+                                metrics['MSE'] = Math.random() * 10;
+                                metrics['RMSE'] = Math.sqrt(metrics['MSE']);
+                                metrics['MAE'] = Math.random() * 5;
+                                metrics['R2 Score'] = 0.5 + Math.random() * 0.5;
+                            }
+                            
+                            // 生成模拟预测结果
+                            const testSize = 50;
+                            const testPredictions = [];
+                            const testTargets = [];
+                            
+                            for (let i = 0; i < testSize; i++) {
+                                if (config.task_type === 'classification') {
+                                    testPredictions.push(Math.floor(Math.random() * 3));
+                                    testTargets.push(Math.floor(Math.random() * 3));
+                                } else {
+                                    testPredictions.push(Math.random() * 100);
+                                    testTargets.push(Math.random() * 100);
+                                }
+                            }
+                            
+                            resolve({
+                                task_type: config.task_type,
+                                model_name: config.model_name,
+                                dataset_name: config.dataset_name,
+                                metrics,
+                                test_predictions: testPredictions,
+                                test_targets: testTargets,
+                                train_loss_history: Array.from({ length: 10 }, (_, i) => Math.exp(-i / 3) + Math.random() * 0.1)
+                            });
+                        }, estimatedTime.value * 1000);
+                    });
+                };
+
+                const updateRadarChart = () => {
+                    if (!radarChart.value) {
+                        radarChart.value = echarts.init(document.getElementById('radarChart'));
+                    }
+                    
+                    // 准备雷达图数据
+                    const indicators = [];
+                    const data = [];
+                    
+                    if (currentTask.value === 'classification') {
+                        const metrics = ['Accuracy', 'Precision', 'Recall', 'F1 Score'];
+                        metrics.forEach(metric => {
+                            indicators.push({ name: metric, max: 1 });
+                        });
+                        
+                        history.value.forEach((item, index) => {
+                            const values = metrics.map(metric => item.metrics[metric]);
+                            data.push({
+                                value: values,
+                                name: item.model_name,
+                                itemStyle: {
+                                    color: getColor(index)
+                                }
+                            });
+                        });
+                    } else {
+                        const metrics = ['MSE', 'RMSE', 'MAE', 'R2 Score'];
+                        metrics.forEach(metric => {
+                            indicators.push({ 
+                                name: metric, 
+                                max: metric === 'R2 Score' ? 1 : 10 
+                            });
+                        });
+                        
+                        history.value.forEach((item, index) => {
+                            const values = metrics.map(metric => item.metrics[metric]);
+                            data.push({
+                                value: values,
+                                name: item.model_name,
+                                itemStyle: {
+                                    color: getColor(index)
+                                }
+                            });
+                        });
+                    }
+                    
+                    const option = {
+                        title: {
+                            text: '模型性能对比',
+                            left: 'center'
+                        },
+                        tooltip: {},
+                        legend: {
+                            data: history.value.map(item => item.model_name),
+                            bottom: 0
+                        },
+                        radar: {
+                            indicator: indicators
+                        },
+                        series: [{
+                            type: 'radar',
+                            data: data
+                        }]
+                    };
+                    
+                    radarChart.value.setOption(option);
+                };
+
+                const updateDetailChart = () => {
+                    if (!detailChart.value) {
+                        detailChart.value = echarts.init(document.getElementById('detailChart'));
+                    }
+                    
+                    if (!latestResult.value) return;
+                    
+                    // 准备详细图表数据
+                    const predictions = latestResult.value.test_predictions;
+                    const targets = latestResult.value.test_targets;
+                    
+                    let option;
+                    
+                    if (currentTask.value === 'classification') {
+                        // 混淆矩阵数据
+                        const matrixSize = 3; // 假设有3个类别
+                        const matrix = Array(matrixSize).fill(0).map(() => Array(matrixSize).fill(0));
+                        
+                        for (let i = 0; i < predictions.length; i++) {
+                            matrix[targets[i]][predictions[i]]++;
+                        }
+                        
+                        option = {
+                            title: {
+                                text: '混淆矩阵',
+                                left: 'center'
+                            },
+                            tooltip: {
+                                position: 'top'
+                            },
+                            grid: {
+                                height: '50%',
+                                top: '10%'
+                            },
+                            xAxis: {
+                                type: 'category',
+                                data: ['类别 0', '类别 1', '类别 2'],
+                                splitArea: {
+                                    show: true
+                                }
+                            },
+                            yAxis: {
+                                type: 'category',
+                                data: ['类别 0', '类别 1', '类别 2'],
+                                splitArea: {
+                                    show: true
+                                }
+                            },
+                            visualMap: {
+                                min: 0,
+                                max: Math.max(...matrix.flat()),
+                                calculable: true,
+                                orient: 'horizontal',
+                                left: 'center',
+                                bottom: '15%'
+                            },
+                            series: [{
+                                name: '预测值',
+                                type: 'heatmap',
+                                data: matrix.flatMap((row, i) => 
+                                    row.map((val, j) => [i, j, val])
+                                ),
+                                label: {
+                                    show: true
+                                },
+                                emphasis: {
+                                    itemStyle: {
+                                        shadowBlur: 10,
+                                        shadowColor: 'rgba(0, 0, 0, 0.5)'
+                                    }
+                                }
+                            }]
+                        };
+                    } else {
+                        // 散点图数据
+                        const scatterData = predictions.map((pred, i) => [pred, targets[i]]);
+                        
+                        option = {
+                            title: {
+                                text: '预测值 vs 真实值',
+                                left: 'center'
+                            },
+                            tooltip: {
+                                trigger: 'axis',
+                                axisPointer: {
+                                    type: 'cross'
+                                }
+                            },
+                            xAxis: {
+                                type: 'value',
+                                name: '预测值',
+                                nameLocation: 'middle',
+                                nameGap: 30
+                            },
+                            yAxis: {
+                                type: 'value',
+                                name: '真实值',
+                                nameLocation: 'middle',
+                                nameGap: 30
+                            },
+                            series: [{
+                                type: 'scatter',
+                                data: scatterData,
+                                symbolSize: 10,
+                                itemStyle: {
+                                    color: '#4361ee'
+                                }
+                            }, {
+                                type: 'line',
+                                data: [[0, 0], [100, 100]],
+                                lineStyle: {
+                                    color: '#ff6b6b',
+                                    type: 'dashed'
+                                },
+                                symbol: 'none'
+                            }]
+                        };
+                    }
+                    
+                    detailChart.value.setOption(option);
+                };
+
+                const selectHistoryItem = (index) => {
+                    selectedHistoryIndex.value = index;
+                    latestResult.value = history.value[index];
+                    updateDetailChart();
+                };
+
+                const formatDate = (date) => {
+                    return new Date(date).toLocaleString();
+                };
+
+                const getColor = (index) => {
+                    const colors = ['#4361ee', '#3f37c9', '#7209b7', '#560bad', '#480ca8'];
+                    return colors[index % colors.length];
+                };
+
+                // 生命周期钩子
+                onMounted(async () => {
+                    // 初始化配置
+                    await fetchConfig();
+                    
+                    // 初始化图表
+                    window.addEventListener('resize', () => {
+                        if (radarChart.value) radarChart.value.resize();
+                        if (detailChart.value) detailChart.value.resize();
+                    });
+                });
+
+                return {
+                    currentTask,
+                    isLoading,
+                    elapsedTime,
+                    estimatedTime,
+                    selectedHistoryIndex,
+                    config,
+                    history,
+                    latestResult,
+                    availableDatasets,
+                    availableModels,
+                    progressPercentage,
+                    remainingTime,
+                    modelParams,
+                    runTraining,
+                    selectHistoryItem,
+                    formatDate
+                };
+            }
+        }).mount('#app');
+    </script>
+</body>
+</html>
