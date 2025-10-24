@@ -1,0 +1,517 @@
+<!-- Chosen Palette: "Calm Harmony" (基于中性色：石头色、辅以平静的绿色) -->
+<!-- Application Structure Plan: [设计为一个“项目中心”仪表盘，采用垂直滚动的单页布局，分为 6 个主题部分：(1) 概览, (2) 系统架构, (3) 配置浏览器, (4) API 端点, (5) 前端 UI 愿景, (6) 路线图。这种非线性的主题结构允许项目经理或开发人员快速跳转到他们关心的计划部分，而不是线性阅读文档。“配置浏览器”是关键的交互元素，旨在使项目的数据（模型、数据集）变得“鲜活”和可探索，这比文档中的静态代码块更有效。] -->
+<!-- Visualization & Content Choices: [
+(1) 源报告信息: 项目架构 -> 目标: 组织 -> 呈现: HTML/Tailwind Flexbox 流程图 -> 交互: 无 -> 理由: 视觉化展示系统组件和流程，避免使用禁止的 SVG/Mermaid。
+(2) 源报告信息: `TASK_MODELS` & `TASK_DATASETS` 配置 -> 目标: 探索/交互 -> 呈现: 交互式过滤器与列表 -> 交互: 用户选择“任务” (单选按钮)，JS 动态过滤和更新“模型”和“数据集”列表。 -> 理由: 这是主要的交互元素。它使报告中的静态配置数据“实时化”，允许用户直接理解 ML 应用的核心逻辑（基于任务的过滤）。
+(3) 源报告信息: `BASELINE_TIMES` 配置 -> 目标: 比较 -> 呈现: 条形图 (Chart.js) -> 交互: 悬停提示 -> 理由: 直观地比较不同模型的相对计算成本，使配置块中的数据更易于理解。按照要求放置在 `.chart-container` div 中。
+(4) 源报告信息: API 端点 -> 目标: 告知 -> 呈现: 可切换的 HTML 详情区域 (手风琴) -> 交互: 点击展开/折叠 请求/响应 细节 -> 理由: 清晰地组织技术 API 信息，防止信息过载。
+(5) 源报告信息: 前端四象限布局 -> 目标: 告知 -> 呈现: HTML/Tailwind 2x2 网格 -> 交互: 无 -> 理由: 提供报告中描述的 UI 计划的清晰、静态的视觉模型。
+] -->
+<!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ML 平台开发计划仪表盘</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+SC:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', 'Noto Sans SC', sans-serif;
+            background-color: #f8f7f6; /* 暖色中性背景 (Stone-50) */
+            color: #1c1917; /* Stone-900 */
+        }
+        .nav-link {
+            @apply px-3 py-2 rounded-md text-sm font-medium text-stone-600 hover:bg-stone-200 hover:text-stone-900 transition-colors;
+        }
+        .nav-link.active {
+            @apply bg-stone-200 text-emerald-700 font-semibold;
+        }
+        .card {
+            @apply bg-white p-6 rounded-lg shadow-sm border border-stone-200;
+        }
+        .section-title {
+            @apply text-2xl font-bold text-stone-800 mb-4;
+        }
+        .section-subtitle {
+            @apply text-lg font-semibold text-emerald-700 mb-2;
+        }
+        .pill {
+            @apply inline-block bg-emerald-100 text-emerald-800 text-xs font-semibold px-3 py-1 rounded-full;
+        }
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 40vh;
+            max-height: 400px;
+        }
+    </style>
+</head>
+<body class="antialiased">
+
+    <!-- 头部和导航 -->
+    <header class="sticky top-0 z-50 bg-white/90 backdrop-blur-sm shadow-sm border-b border-stone-200">
+        <nav class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <div class="flex-shrink-0">
+                    <h1 class="text-xl font-bold text-emerald-700">ML 平台开发计划</h1>
+                </div>
+                <div class="hidden md:block">
+                    <div class="ml-10 flex items-baseline space-x-4">
+                        <a href="#overview" class="nav-link active">概览</a>
+                        <a href="#architecture" class="nav-link">架构</a>
+                        <a href="#config-explorer" class="nav-link">配置浏览器</a>
+                        <a href="#api" class="nav-link">API</a>
+                        <a href="#ui-vision" class="nav-link">UI 愿景</a>
+                        <a href="#roadmap" class="nav-link">路线图</a>
+                    </div>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <!-- 主内容区 -->
+    <main class="max-w-6xl mx-auto p-4 sm:p-6 lg:p-8">
+        
+        <!-- 1. 概览 -->
+        <section id="overview" class="mb-12 scroll-mt-20">
+            <div class="card">
+                <h2 class="section-title">项目概览</h2>
+                <p class="text-stone-600 mb-6">
+                    本项目旨在构建一个高交互性、实时反馈的 Web 平台，用于展示和比较主流机器学习算法（分类与回归）的性能。此仪表盘是对该项目开发计划的交互式探索。
+                </p>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div class="border-l-4 border-emerald-500 pl-4">
+                        <h3 class="font-semibold text-stone-700">核心目标</h3>
+                        <ul class="list-disc list-inside text-stone-600 text-sm mt-2 space-y-1">
+                            <li>清晰分离分类与回归任务</li>
+                            <li>统一模型接口</li>
+                            <li>提供优秀的四象限 UI</li>
+                            <li>独立存储最新 5 个模型结果</li>
+                            <li>前端本地估算训练时间</li>
+                        </ul>
+                    </div>
+                    <div class="border-l-4 border-blue-500 pl-4">
+                        <h3 class="font-semibold text-stone-700">技术栈</h3>
+                        <div class="flex flex-wrap gap-2 mt-2">
+                            <span class="pill bg-blue-100 text-blue-800">Python</span>
+                            <span class="pill bg-blue-100 text-blue-800">FastAPI</span>
+                            <span class="pill bg-green-100 text-green-800">Vue.js 3</span>
+                            <span class="pill bg-yellow-100 text-yellow-800">ECharts</span>
+                            <span class="pill bg-gray-100 text-gray-800">Numpy</span>
+                        </div>
+                    </div>
+                    <div class="border-l-4 border-gray-500 pl-4">
+                        <h3 class="font-semibold text-stone-700">架构</h3>
+                        <p class="text-stone-600 text-sm mt-2">
+                            采用经典前后端分离架构，通过 RESTful API 进行数据交换。
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 2. 系统架构 -->
+        <section id="architecture" class="mb-12 scroll-mt-20">
+            <h2 class="section-title">系统架构</h2>
+            <div class="card">
+                <p class="text-stone-600 mb-6">
+                    系统采用前后端分离设计，以实现逻辑解耦和可伸缩性。前端负责所有用户交互和状态管理，后端专注
+                    于计算密集型的模型训练和数据处理。
+                </p>
+                <div class="flex flex-col md:flex-row items-center justify-center space-y-4 md:space-y-0 md:space-x-8 p-6 bg-stone-50 rounded-lg">
+                    <!-- 前端 -->
+                    <div class="text-center p-6 bg-white rounded-lg shadow-md border border-green-200">
+                        <h3 class="font-semibold text-lg text-green-700">前端 (Vue.js)</h3>
+                        <ul class="text-sm text-stone-600 mt-2">
+                            <li>UI 渲染</li>
+                            <li>状态管理 (Pinia/Vuex)</li>
+                            <li>API 调用</li>
+                            <li>时间估算 & 进度条</li>
+                        </ul>
+                    </div>
+                    
+                    <!-- 箭头 -->
+                    <div class="font-mono text-emerald-600 text-2xl font-bold transform rotate-90 md:rotate-0">
+                        &lt;-- API --&gt;
+                    </div>
+
+                    <!-- 后端 -->
+                    <div class="text-center p-6 bg-white rounded-lg shadow-md border border-blue-200">
+                        <h3 class="font-semibold text-lg text-blue-700">后端 (FastAPI)</h3>
+                        <ul class="text-sm text-stone-600 mt-2">
+                            <li>模型训练 (<code>.fit</code>)</li>
+                            <li>数据处理 (PCA)</li>
+                            <li>指标计算</li>
+                            <li>配置服务</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 3. 配置浏览器 (交互式) -->
+        <section id="config-explorer" class="mb-12 scroll-mt-20">
+            <h2 class="section-title">配置浏览器</h2>
+            <div class="card">
+                <p class="text-stone-600 mb-6">
+                    这是对项目核心配置 (`config.py`) 的交互式探索。选择一个任务类型，查看该任务可用的模型和数据集。
+                </p>
+                
+                <!-- 任务选择 -->
+                <div class="mb-6">
+                    <h3 class="section-subtitle">1. 选择任务类型</h3>
+                    <fieldset class="flex gap-4">
+                        <label class="flex items-center px-4 py-2 border rounded-lg cursor-pointer transition-all">
+                            <input type="radio" name="task-type" value="regression" class="form-radio text-emerald-600 focus:ring-emerald-500" checked>
+                            <span class="ml-3 text-stone-700 font-medium">回归 (Regression)</span>
+                        </label>
+                        <label class="flex items-center px-4 py-2 border rounded-lg cursor-pointer transition-all">
+                            <input type="radio" name="task-type" value="classification" class="form-radio text-emerald-600 focus:ring-emerald-500">
+                            <span class="ml-3 text-stone-700 font-medium">分类 (Classification)</span>
+                        </label>
+                    </fieldset>
+                </div>
+
+                <!-- 动态列表 -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <h3 class="section-subtitle">2. 可用模型</h3>
+                        <ul id="model-list" class="space-y-2 text-stone-600">
+                            <!-- JS 会填充这里 -->
+                        </ul>
+                    </div>
+                    <div>
+                        <h3 class="section-subtitle">3. 可用数据集</h3>
+                        <ul id="dataset-list" class="space-y-2 text-stone-600">
+                            <!-- JS 会填充这里 -->
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- 基线时间图表 -->
+                <div class="mt-8">
+                    <h3 class="section-subtitle">4. 模型基线训练时间 (秒)</h3>
+                    <p class="text-stone-600 mb-4 text-sm">
+                        此图表（来自 `BASELINE_TIMES`）显示了在完整数据集上运行各模型的基准时间，前端将使用此数据估算进度条。
+                    </p>
+                    <div class="chart-container">
+                        <canvas id="baselineChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <!-- 4. API 端点 -->
+        <section id="api" class="mb-12 scroll-mt-20">
+            <h2 class="section-title">API 端点</h2>
+            <div class="space-y-4">
+                <!-- API 1 -->
+                <div class="card overflow-hidden">
+                    <button class="api-toggle-btn w-full text-left">
+                        <div class="flex justify-between items-center">
+                            <h3 class="text-lg font-semibold text-stone-800">
+                                <span class="text-sm font-bold bg-green-500 text-white px-2 py-1 rounded-md mr-3">GET</span>
+                                <code>/api/v1/config</code>
+                            </h3>
+                            <span class="toggle-icon text-emerald-600 text-2xl transform rotate-0 transition-transform">▸</span>
+                        </div>
+                        <p class="text-sm text-stone-500 mt-1">获取所有前端所需的静态配置。</p>
+                    </button>
+                    <div class="api-content hidden mt-4 pt-4 border-t border-stone-200">
+                        <h4 class="font-semibold text-stone-700 mb-2">响应内容:</h4>
+                        <pre class="bg-stone-100 p-3 rounded-md text-xs text-stone-700 overflow-x-auto">
+{
+  "TASK_MODELS": {...},
+  "TASK_DATASETS": {...},
+  "MODEL_PARAMS": {...},
+  "PCA_PARAMS": {...},
+  "BASELINE_TIMES": {...}
+}
+                        </pre>
+                    </div>
+                </div>
+
+                <!-- API 2 -->
+                <div class="card overflow-hidden">
+                    <button class="api-toggle-btn w-full text-left">
+                        <div class="flex justify-between items-center">
+                            <h3 class="text-lg font-semibold text-stone-800">
+                                <span class="text-sm font-bold bg-blue-500 text-white px-2 py-1 rounded-md mr-3">POST</span>
+                                <code>/api/v1/train</code>
+                            </h3>
+                            <span class="toggle-icon text-emerald-600 text-2xl transform rotate-0 transition-transform">▸</span>
+                        </div>
+                        <p class="text-sm text-stone-500 mt-1">提交训练任务并阻塞等待结果。</p>
+                    </button>
+                    <div class="api-content hidden mt-4 pt-4 border-t border-stone-200">
+                        <h4 class="font-semibold text-stone-700 mb-2">请求体 (`TrainRequest`):</h4>
+                        <pre class="bg-stone-100 p-3 rounded-md text-xs text-stone-700 overflow-x-auto">
+{
+  "task_type": "regression",
+  "dataset_name": "california_housing",
+  "model_name": "LinearRegression",
+  "split_ratio": 0.7,
+  "use_pca": false,
+  "pca_params": {"n_components": 2},
+  "model_params": {...}
+}
+                        </pre>
+                        <h4 class="font-semibold text-stone-700 mt-4 mb-2">响应体 (`TrainResult`):</h4>
+                        <pre class="bg-stone-100 p-3 rounded-md text-xs text-stone-700 overflow-x-auto">
+{
+  "task_type": "regression",
+  "model_name": "LinearRegression",
+  "metrics": {"MSE": 0.52, "R2 Score": 0.78, ...},
+  "test_predictions": [...],
+  "test_targets": [...],
+  "train_loss_history": [...]
+}
+                        </pre>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 5. 前端 UI 愿景 -->
+        <section id="ui-vision" class="mb-12 scroll-mt-20">
+            <h2 class="section-title">前端 UI 愿景</h2>
+            <div class="card">
+                <p class="text-stone-600 mb-6">
+                    根据开发计划，前端将采用一个功能性的四象限布局。这是一个高级视觉模型，展示了每个区域的预期功能。
+                </p>
+                <div class="aspect-w-16 aspect-h-9 bg-stone-100 rounded-lg p-6 border border-stone-200">
+                    <div class="grid grid-cols-2 grid-rows-2 gap-4 w-full h-full">
+                        
+                        <div class="bg-white p-4 rounded-lg shadow border-l-4 border-emerald-500 flex flex-col justify-center items-center text-center row-span-1 col-span-1">
+                            <h3 class="font-bold text-emerald-700">A (左上)</h3>
+                            <p class="text-sm text-stone-600">任务选择</p>
+                            <span class="text-xs text-stone-400">(回归 / 分类)</span>
+                        </div>
+                        
+                        <div class="bg-white p-4 rounded-lg shadow border-l-4 border-blue-500 flex flex-col justify-center items-center text-center row-span-1 col-span-1">
+                            <h3 class="font-bold text-blue-700">B (右上)</h3>
+                            <p class="text-sm text-stone-600">控制面板</p>
+                            <span class="text-xs text-stone-400">(数据集, 模型, 运行, 进度条)</span>
+                        </div>
+                        
+                        <div class="bg-white p-4 rounded-lg shadow border-l-4 border-yellow-500 flex flex-col justify-center items-center text-center row-span-1 col-span-1">
+                            <h3 class="font-bold text-yellow-700">C (左下)</h3>
+                            <p class="text-sm text-stone-600">超参数配置</p>
+                            <span class="text-xs text-stone-400">(分割比例, PCA, 模型参数)</span>
+                        </div>
+
+                        <div class="bg-white p-4 rounded-lg shadow border-l-4 border-purple-500 flex flex-col justify-center items-center text-center row-span-1 col-span-1">
+                            <h3 class="font-bold text-purple-700">D (右下)</h3>
+                            <p class="text-sm text-stone-600">结果可视化</p>
+                            <span class="text-xs text-stone-400">(雷达图, 详细图表)</span>
+                        </div>
+                        
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 6. 路线图 -->
+        <section id="roadmap" class="mb-12 scroll-mt-20">
+            <h2 class="section-title">路线图与未来优化</h2>
+            <div class="card">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <div>
+                        <h3 class="section-subtitle">部署指南</h3>
+                        <ol class="list-decimal list-inside text-stone-600 space-y-2">
+                            <li><span class="font-semibold">后端 (FastAPI):</span>
+                                <ul class="list-disc list-inside ml-4 text-sm">
+                                    <li>创建虚拟环境</li>
+                                    <li>安装 `requirements.txt`</li>
+                                    <li>运行 `uvicorn app.main:app`</li>
+                                </ul>
+                            </li>
+                            <li><span class="font-semibold">前端 (Vue.js):</span>
+                                <ul class="list-disc list-inside ml-4 text-sm">
+                                    <li>运行 `npm install`</li>
+                                    <li>运行 `npm run serve`</li>
+                                </ul>
+                            </li>
+                        </ol>
+                    </div>
+                    <div>
+                        <h3 class="section-subtitle">未来优化方向</h3>
+                        <ul class="list-disc list-inside text-stone-600 space-y-2">
+                            <li><span class="font-semibold">性能监控:</span> 在 `TrainResult` 中增加训练耗时，以优化前端估算。</li>
+                            <li><span class="font-semibold">数据类型提示:</span> 在 UI 中展示特征类型（连续/离散）。</li>
+                            <li><span class="font-semibold">模型热加载:</span> 无需重启服务即可添加新模型。</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <footer class="text-center p-6 border-t border-stone-200 mt-12">
+        <p class="text-sm text-stone-500">ML 平台开发计划仪表盘 | 由 Gemini 根据源报告生成</p>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+
+            // --- 源报告中的配置数据 (硬编码) ---
+            const CONFIG_DATA = {
+                TASK_MODELS: {
+                    "classification": [
+                        "DecisionTreeClassifier", "GBM_C", "KMeans", "KnnClassifier", 
+                        "LogisticRegression", "NaiveBayes", "RandomForestClassifier", "SVM"
+                    ],
+                    "regression": [
+                        "GBM_R", "DecisionTreeRegressor", "KnnRegressor", 
+                        "LinearRegression", "RandomForestRegressor"
+                    ]
+                },
+                TASK_DATASETS: {
+                    "classification": ["iris", "mushroom", "titanic"],
+                    "regression": ["auto_mpg", "california_housing", "diabetes"]
+                },
+                BASELINE_TIMES: {
+                    "DecisionTreeClassifier_iris": 0.05,
+                    "SVM_california_housing": 2.5,
+                    "LinearRegression_diabetes": 0.03,
+                    "RandomForestClassifier_mushroom": 0.8,
+                    "GBM_R_auto_mpg": 0.4,
+                    "KnnClassifier_titanic": 0.1
+                }
+            };
+
+            // --- 1. 导航滚动 & 激活链接 ---
+            const navLinks = document.querySelectorAll('.nav-link');
+            const sections = document.querySelectorAll('section');
+
+            const observerOptions = {
+                root: null,
+                rootMargin: '0px',
+                threshold: 0.4
+            };
+
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        const id = entry.target.getAttribute('id');
+                        navLinks.forEach(link => {
+                            link.classList.remove('active');
+                            if (link.getAttribute('href') === `#${id}`) {
+                                link.classList.add('active');
+                            }
+                        });
+                    }
+                });
+            }, observerOptions);
+
+            sections.forEach(section => {
+                observer.observe(section);
+            });
+
+            navLinks.forEach(link => {
+                link.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    document.querySelector(link.getAttribute('href')).scrollIntoView({
+                        behavior: 'smooth'
+                    });
+                });
+            });
+
+            // --- 2. 配置浏览器交互 ---
+            const taskRadios = document.querySelectorAll('input[name="task-type"]');
+            const modelList = document.getElementById('model-list');
+            const datasetList = document.getElementById('dataset-list');
+
+            function updateConfigExplorer() {
+                const selectedTask = document.querySelector('input[name="task-type"]:checked').value;
+                
+                // 更新高亮
+                taskRadios.forEach(radio => {
+                    radio.parentElement.classList.toggle('bg-emerald-50', radio.value === selectedTask);
+                    radio.parentElement.classList.toggle('border-emerald-300', radio.value === selectedTask);
+                });
+
+                // 更新模型列表
+                const models = CONFIG_DATA.TASK_MODELS[selectedTask] || [];
+                modelList.innerHTML = models.map(model => `<li class="px-3 py-1 bg-stone-50 rounded">${model}</li>`).join('');
+                if (models.length === 0) modelList.innerHTML = `<li class="text-stone-400">无可用模型</li>`;
+
+                // 更新数据集列表
+                const datasets = CONFIG_DATA.TASK_DATASETS[selectedTask] || [];
+                datasetList.innerHTML = datasets.map(dataset => `<li class="px-3 py-1 bg-stone-50 rounded">${dataset}</li>`).join('');
+                if (datasets.length === 0) datasetList.innerHTML = `<li class="text-stone-400">无可用数据集</li>`;
+            }
+
+            taskRadios.forEach(radio => radio.addEventListener('change', updateConfigExplorer));
+            updateConfigExplorer(); // 初始加载
+
+            // --- 3. 基线时间图表 (Chart.js) ---
+            const ctx = document.getElementById('baselineChart').getContext('2d');
+            const chartData = CONFIG_DATA.BASELINE_TIMES;
+            
+            new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: Object.keys(chartData),
+                    datasets: [{
+                        label: '基线时间 (秒)',
+                        data: Object.values(chartData),
+                        backgroundColor: 'rgba(16, 185, 129, 0.2)', // emerald-500 with opacity
+                        borderColor: 'rgba(16, 185, 129, 1)',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    indexAxis: 'y',
+                    scales: {
+                        x: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: '时间 (秒)'
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return `${context.dataset.label}: ${context.raw} 秒`;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+
+            // --- 4. API 端点手风琴 ---
+            const apiToggleButtons = document.querySelectorAll('.api-toggle-btn');
+            apiToggleButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    const content = button.nextElementSibling;
+                    const icon = button.querySelector('.toggle-icon');
+                    const isHidden = content.classList.contains('hidden');
+                    
+                    content.classList.toggle('hidden');
+                    icon.style.transform = isHidden ? 'rotate(90deg)' : 'rotate(0deg)';
+                });
+            });
+
+        });
+    </script>
+</body>
+</html>
