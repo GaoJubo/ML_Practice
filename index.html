@@ -1,13 +1,19 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>机器学习算法展示平台</title>
-    <link href="https://autoglm-api.zhipuai.cn/ppt-proxy/https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://autoglm-api.zhipuai.cn/ppt-proxy/https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.3/font/bootstrap-icons.css">
-    <script src="https://autoglm-api.zhipuai.cn/ppt-proxy/https://cdn.jsdelivr.net/npm/vue@3.2.47/dist/vue.global.js"></script>
-    <script src="https://autoglm-api.zhipuai.cn/ppt-proxy/https://cdn.jsdelivr.net/npm/echarts@5.4.1/dist/echarts.min.js"></script>
+    <link
+        href="https://autoglm-api.zhipuai.cn/ppt-proxy/https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css"
+        rel="stylesheet">
+    <link rel="stylesheet"
+        href="https://autoglm-api.zhipuai.cn/ppt-proxy/https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.3/font/bootstrap-icons.css">
+    <script
+        src="https://autoglm-api.zhipuai.cn/ppt-proxy/https://cdn.jsdelivr.net/npm/vue@3.2.47/dist/vue.global.js"></script>
+    <script
+        src="https://autoglm-api.zhipuai.cn/ppt-proxy/https://cdn.jsdelivr.net/npm/echarts@5.4.1/dist/echarts.min.js"></script>
     <style>
         :root {
             --primary-color: #4361ee;
@@ -89,14 +95,16 @@
             color: var(--text-color);
         }
 
-        .form-control, .form-select {
+        .form-control,
+        .form-select {
             border-radius: 8px;
             border: 1px solid #ced4da;
             padding: 10px 15px;
             transition: all 0.3s;
         }
 
-        .form-control:focus, .form-select:focus {
+        .form-control:focus,
+        .form-select:focus {
             border-color: var(--primary-color);
             box-shadow: 0 0 0 0.25rem rgba(67, 97, 238, 0.25);
         }
@@ -264,8 +272,13 @@
         }
 
         @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
         }
 
         .alert {
@@ -300,6 +313,7 @@
         }
     </style>
 </head>
+
 <body>
     <div id="app">
         <div class="container">
@@ -315,14 +329,13 @@
                     <div class="form-group">
                         <label class="form-label">选择任务类型</label>
                         <div class="btn-group w-100" role="group">
-                            <button type="button" class="btn btn-outline-primary" 
-                                    :class="{ active: currentTask === 'classification' }"
-                                    @click="currentTask = 'classification'">
+                            <button type="button" class="btn btn-outline-primary"
+                                :class="{ active: currentTask === 'classification' }"
+                                @click="currentTask = 'classification'">
                                 <i class="bi bi-tags"></i> 分类任务
                             </button>
-                            <button type="button" class="btn btn-outline-primary" 
-                                    :class="{ active: currentTask === 'regression' }"
-                                    @click="currentTask = 'regression'">
+                            <button type="button" class="btn btn-outline-primary"
+                                :class="{ active: currentTask === 'regression' }" @click="currentTask = 'regression'">
                                 <i class="bi bi-graph-up"></i> 回归任务
                             </button>
                         </div>
@@ -343,9 +356,11 @@
                     <div class="form-group">
                         <label class="form-label">可用数据集</label>
                         <ul class="list-group">
-                            <li v-for="dataset in availableDatasets" :key="dataset" class="list-group-item d-flex justify-content-between align-items-center">
+                            <li v-for="dataset in availableDatasets" :key="dataset"
+                                class="list-group-item d-flex justify-content-between align-items-center">
                                 {{ dataset }}
-                                <span class="badge bg-primary rounded-pill">{{ currentTask === 'classification' ? '分类' : '回归' }}</span>
+                                <span class="badge bg-primary rounded-pill">{{ currentTask === 'classification' ? '分类' :
+                                    '回归' }}</span>
                             </li>
                         </ul>
                     </div>
@@ -354,7 +369,7 @@
                 <!-- 右上区域：数据集与模型配置模块 -->
                 <div class="grid-item">
                     <h2><i class="bi bi-gear"></i> 配置与控制</h2>
-                    
+
                     <div class="form-group">
                         <label class="form-label">数据集选择</label>
                         <select class="form-select" v-model="config.dataset_name">
@@ -375,7 +390,8 @@
 
                     <div class="form-group">
                         <label class="form-label">数据集分割比例: {{ config.split_ratio * 100 }}%</label>
-                        <input type="range" class="form-range" min="0.5" max="0.9" step="0.05" v-model="config.split_ratio">
+                        <input type="range" class="form-range" min="0.5" max="0.9" step="0.05"
+                            v-model="config.split_ratio">
                         <div class="d-flex justify-content-between">
                             <small>训练集: {{ Math.round(config.split_ratio * 100) }}%</small>
                             <small>测试集: {{ Math.round((1 - config.split_ratio) * 100) }}%</small>
@@ -391,18 +407,18 @@
 
                     <div class="form-group" v-if="config.use_pca">
                         <label class="form-label">PCA组件数量</label>
-                        <input type="number" class="form-control" min="1" max="10" v-model="config.pca_params.n_components">
+                        <input type="number" class="form-control" min="1" max="10"
+                            v-model="config.pca_params.n_components">
                     </div>
 
                     <div class="mt-auto">
                         <button class="btn btn-primary w-100" @click="runTraining" :disabled="isLoading">
                             <i class="bi bi-play-circle"></i> 运行训练
                         </button>
-                        
+
                         <div class="progress" v-if="isLoading">
-                            <div class="progress-bar" role="progressbar" 
-                                 :style="{ width: progressPercentage + '%' }"
-                                 :aria-valuenow="progressPercentage" aria-valuemin="0" aria-valuemax="100">
+                            <div class="progress-bar" role="progressbar" :style="{ width: progressPercentage + '%' }"
+                                :aria-valuenow="progressPercentage" aria-valuemin="0" aria-valuemax="100">
                                 {{ progressPercentage.toFixed(1) }}%
                             </div>
                         </div>
@@ -415,13 +431,14 @@
                 <!-- 左下区域：超参数配置模块 -->
                 <div class="grid-item">
                     <h2><i class="bi bi-sliders"></i> 超参数配置</h2>
-                    
+
                     <div v-if="config.model_name">
                         <div class="param-group" v-for="(params, category) in modelParams" :key="category">
                             <div class="param-group-title">{{ category }}</div>
                             <div class="param-item" v-for="(value, key) in params" :key="key">
                                 <label>{{ key }}</label>
-                                <input type="text" class="form-control" v-model="config.model_params[key]" :placeholder="value">
+                                <input type="text" class="form-control" v-model="config.model_params[key]"
+                                    :placeholder="value">
                             </div>
                         </div>
                     </div>
@@ -433,38 +450,43 @@
                 <!-- 右下区域：结果展示模块 -->
                 <div class="grid-item">
                     <h2><i class="bi bi-graph-up"></i> 结果展示</h2>
-                    
+
                     <ul class="nav nav-tabs" id="resultTabs" role="tablist">
                         <li class="nav-item" role="presentation">
-                            <button class="nav-link active" id="radar-tab" data-bs-toggle="tab" data-bs-target="#radar" type="button" role="tab" aria-controls="radar" aria-selected="true">
+                            <button class="nav-link active" id="radar-tab" data-bs-toggle="tab" data-bs-target="#radar"
+                                type="button" role="tab" aria-controls="radar" aria-selected="true">
                                 雷达图
                             </button>
                         </li>
                         <li class="nav-item" role="presentation">
-                            <button class="nav-link" id="detail-tab" data-bs-toggle="tab" data-bs-target="#detail" type="button" role="tab" aria-controls="detail" aria-selected="false">
+                            <button class="nav-link" id="detail-tab" data-bs-toggle="tab" data-bs-target="#detail"
+                                type="button" role="tab" aria-controls="detail" aria-selected="false">
                                 详细图表
                             </button>
                         </li>
                         <li class="nav-item" role="presentation">
-                            <button class="nav-link" id="history-tab" data-bs-toggle="tab" data-bs-target="#history" type="button" role="tab" aria-controls="history" aria-selected="false">
+                            <button class="nav-link" id="history-tab" data-bs-toggle="tab" data-bs-target="#history"
+                                type="button" role="tab" aria-controls="history" aria-selected="false">
                                 历史记录
                             </button>
                         </li>
                     </ul>
-                    
+
                     <div class="tab-content" id="resultTabContent">
                         <!-- 雷达图标签页 -->
                         <div class="tab-pane fade show active" id="radar" role="tabpanel" aria-labelledby="radar-tab">
                             <div class="chart-container" id="radarChart"></div>
                         </div>
-                        
+
                         <!-- 详细图表标签页 -->
                         <div class="tab-pane fade" id="detail" role="tabpanel" aria-labelledby="detail-tab">
                             <div v-if="latestResult">
                                 <div class="row mb-4">
-                                    <div class="col-md-3 col-sm-6" v-for="(value, metric) in latestResult.metrics" :key="metric">
+                                    <div class="col-md-3 col-sm-6" v-for="(value, metric) in latestResult.metrics"
+                                        :key="metric">
                                         <div class="metric-card">
-                                            <div class="metric-value">{{ typeof value === 'number' ? value.toFixed(4) : value }}</div>
+                                            <div class="metric-value">{{ typeof value === 'number' ? value.toFixed(4) :
+                                                value }}</div>
                                             <div class="metric-label">{{ metric }}</div>
                                         </div>
                                     </div>
@@ -475,21 +497,21 @@
                                 暂无结果数据，请先运行训练
                             </div>
                         </div>
-                        
+
                         <!-- 历史记录标签页 -->
                         <div class="tab-pane fade" id="history" role="tabpanel" aria-labelledby="history-tab">
-                            <div v-if="history.length > 0">
-                                <div class="history-item" 
-                                     v-for="(item, index) in history" 
-                                     :key="index"
-                                     :class="{ active: selectedHistoryIndex === index }"
-                                     @click="selectHistoryItem(index)">
+                            <div v-if="displayHistory.length > 0">
+                                <div class="history-item" v-for="(item, index) in displayHistory" :key="index"
+                                    :class="{ active: selectedHistoryIndex === index }"
+                                    @click="selectHistoryItem(index)">
                                     <div class="history-item-header">
-                                        <div class="history-item-title">{{ item.model_name }} - {{ item.dataset_name }}</div>
+                                        <div class="history-item-title">{{ item.model_name }} - {{ item.dataset_name }}
+                                        </div>
                                         <div class="history-item-date">{{ formatDate(item.timestamp) }}</div>
                                     </div>
                                     <div class="history-item-metrics">
-                                        <span class="metric-badge" v-for="(value, metric) in item.metrics" :key="metric">
+                                        <span class="metric-badge" v-for="(value, metric) in item.metrics"
+                                            :key="metric">
                                             {{ metric }}: {{ typeof value === 'number' ? value.toFixed(4) : value }}
                                         </span>
                                     </div>
@@ -514,7 +536,8 @@
         </div>
     </div>
 
-    <script src="https://autoglm-api.zhipuai.cn/ppt-proxy/https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <script
+        src="https://autoglm-api.zhipuai.cn/ppt-proxy/https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
     <script>
         const { createApp, ref, reactive, computed, watch, onMounted } = Vue;
 
@@ -528,7 +551,7 @@
                 const selectedHistoryIndex = ref(-1);
                 const radarChart = ref(null);
                 const detailChart = ref(null);
-                
+
                 // 配置信息
                 const config = reactive({
                     task_type: 'classification',
@@ -541,13 +564,20 @@
                 });
 
                 // 历史记录
-                const history = ref([]);
+                const classificationHistory = ref([]);
+                const regressionHistory = ref([]);
+
+                // 同时，我们还需要一个计算属性，来根据当前任务显示对应的历史
+                const displayHistory = computed(() => {
+                    return currentTask.value === 'classification' ? classificationHistory.value : regressionHistory.value;
+                });
+
                 const latestResult = ref(null);
 
                 // 计算属性
                 const availableDatasets = computed(() => {
-                    return currentTask.value === 'classification' 
-                        ? ['iris', 'mushroom', 'titanic'] 
+                    return currentTask.value === 'classification'
+                        ? ['iris', 'mushroom', 'titanic']
                         : ['auto_mpg', 'california_housing', 'diabetes'];
                 });
 
@@ -571,7 +601,7 @@
                 const modelParams = computed(() => {
                     // 根据当前选择的模型返回对应的超参数配置
                     const params = {};
-                    
+
                     // 这里简化处理，实际应用中应该从后端获取
                     if (config.model_name.includes('Tree')) {
                         params['树参数'] = {
@@ -580,7 +610,7 @@
                             'min_samples_leaf': '1'
                         };
                     }
-                    
+
                     if (config.model_name.includes('RandomForest')) {
                         params['森林参数'] = {
                             'n_estimators': '100',
@@ -592,7 +622,7 @@
                             'min_samples_leaf': '1'
                         };
                     }
-                    
+
                     if (config.model_name.includes('SVM')) {
                         params['SVM参数'] = {
                             'C': '1.0',
@@ -600,7 +630,7 @@
                             'gamma': 'scale'
                         };
                     }
-                    
+
                     if (config.model_name.includes('Knn')) {
                         params['KNN参数'] = {
                             'n_neighbors': '5',
@@ -608,14 +638,14 @@
                             'algorithm': 'auto'
                         };
                     }
-                    
+
                     if (config.model_name.includes('Linear')) {
                         params['线性参数'] = {
                             'fit_intercept': 'true',
                             'normalize': 'false'
                         };
                     }
-                    
+
                     if (config.model_name.includes('GBM')) {
                         params['GBM参数'] = {
                             'n_estimators': '100',
@@ -623,7 +653,7 @@
                             'max_depth': '3'
                         };
                     }
-                    
+
                     return params;
                 });
 
@@ -644,146 +674,207 @@
                 const fetchConfig = async () => {
                     // 模拟从后端获取配置信息
                     // 实际应用中应该调用 API: GET /api/v1/config
-                    return new Promise((resolve) => {
-                        setTimeout(() => {
-                            resolve({
-                                TASK_MODELS: {
-                                    "classification": ["DecisionTreeClassifier", "GBM_C", "KMeans", "KnnClassifier", "LogisticRegression", "NaiveBayes", "RandomForestClassifier", "SVM"],
-                                    "regression": ["GBM_R", "DecisionTreeRegressor", "KnnRegressor", "LinearRegression", "RandomForestRegressor"]
-                                },
-                                TASK_DATASETS: {
-                                    "classification": ["iris", "mushroom", "titanic"],
-                                    "regression": ["auto_mpg", "california_housing", "diabetes"]
-                                },
-                                CLASSIFICATION_METRICS: ["Accuracy", "Precision", "Recall", "F1 Score"],
-                                REGRESSION_METRICS: ["MSE", "RMSE", "MAE", "R2 Score"],
-                                PCA_PARAMS: {
-                                    "n_components": 2
-                                },
-                                BASELINE_TIMES: {
-                                    "DecisionTreeClassifier_iris": 0.05,
-                                    "SVM_california_housing": 2.5,
-                                    "LinearRegression_diabetes": 0.03,
-                                    "RandomForestClassifier_mushroom": 0.8
-                                }
-                            });
-                        }, 500);
-                    });
+                    // return new Promise((resolve) => {
+                    //     setTimeout(() => {
+                    //         resolve({
+                    //             TASK_MODELS: {
+                    //                 "classification": ["DecisionTreeClassifier", "GBM_C", "KMeans", "KnnClassifier", "LogisticRegression", "NaiveBayes", "RandomForestClassifier", "SVM"],
+                    //                 "regression": ["GBM_R", "DecisionTreeRegressor", "KnnRegressor", "LinearRegression", "RandomForestRegressor"]
+                    //             },
+                    //             TASK_DATASETS: {
+                    //                 "classification": ["iris", "mushroom", "titanic"],
+                    //                 "regression": ["auto_mpg", "california_housing", "diabetes"]
+                    //             },
+                    //             CLASSIFICATION_METRICS: ["Accuracy", "Precision", "Recall", "F1 Score"],
+                    //             REGRESSION_METRICS: ["MSE", "RMSE", "MAE", "R2 Score"],
+                    //             PCA_PARAMS: {
+                    //                 "n_components": 2
+                    //             },
+                    //             BASELINE_TIMES: {
+                    //                 "DecisionTreeClassifier_iris": 0.05,
+                    //                 "SVM_california_housing": 2.5,
+                    //                 "LinearRegression_diabetes": 0.03,
+                    //                 "RandomForestClassifier_mushroom": 0.8
+                    //             }
+                    //         });
+                    //     }, 500);
+                    // });
+
+                    try {
+                        const response = await fetch('http://localhost:8000/api/v1/config'); // 修改这里
+                        if (!response.ok) {
+                            throw new Error('网络响应错误');
+                        }
+                        const configData = await response.json();
+                        return configData;
+                    } catch (error) {
+                        console.error('获取配置失败:', error);
+                        // 可以在这里添加错误提示给用户
+                        return null; // 或者返回一个默认配置
+                    }
                 };
 
                 const runTraining = async () => {
                     if (isLoading.value) return;
-                    
+
                     isLoading.value = true;
                     elapsedTime.value = 0;
-                    
+
                     // 计算预估时间
                     const modelDatasetKey = `${config.model_name}_${config.dataset_name}`;
                     const baselineTime = 2.0; // 默认基准时间，实际应用中应该从配置中获取
                     estimatedTime.value = baselineTime * config.split_ratio * (config.use_pca ? 1.2 : 1) * 1.5; // 简单估算
-                    
+
                     // 启动计时器
                     const timer = setInterval(() => {
                         elapsedTime.value += 0.1;
                     }, 100);
-                    
+
+                    // try {
+                    //     // 模拟API调用
+                    //     // 实际应用中应该调用 API: POST /api/v1/train
+                    //     const result = await simulateTraining(config);
+
+                    //     // 添加到历史记录
+                    //     const historyItem = {
+                    //         ...result,
+                    //         timestamp: new Date()
+                    //     };
+
+                    //     if (config.task_type === 'classification') {
+                    //         history.value.unshift(historyItem);
+                    //         if (history.value.length > 5) history.value.pop();
+                    //     } else {
+                    //         // 在实际应用中，应该分别存储分类和回归的历史记录
+                    //         history.value.unshift(historyItem);
+                    //         if (history.value.length > 5) history.value.pop();
+                    //     }
+
+                    //     latestResult.value = result;
+                    //     selectedHistoryIndex.value = 0;
+
+                    //     // 更新图表
+                    //     updateRadarChart();
+                    //     updateDetailChart();
+                    // } catch (error) {
+                    //     console.error('训练失败:', error);
+                    //     alert('训练失败，请检查参数配置');
+                    // } finally {
+                    //     clearInterval(timer);
+                    //     isLoading.value = false;
+                    // }
+
+
                     try {
-                        // 模拟API调用
-                        // 实际应用中应该调用 API: POST /api/v1/train
-                        const result = await simulateTraining(config);
-                        
+                        // 原来的代码是模拟的，需要替换成真实的API调用
+                        const response = await fetch('http://localhost:8000/api/v1/train', { // 修改这里
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify(config) // 将配置发送给后端
+                        });
+
+                        if (!response.ok) {
+                            throw new Error('训练请求失败');
+                        }
+
+                        const result = await response.json(); // 获取后端返回的真实结果
+
                         // 添加到历史记录
                         const historyItem = {
                             ...result,
                             timestamp: new Date()
                         };
-                        
+
                         if (config.task_type === 'classification') {
-                            history.value.unshift(historyItem);
-                            if (history.value.length > 5) history.value.pop();
+                            classificationHistory.value.unshift(historyItem);
+                            if (classificationHistory.value.length > 5) classificationHistory.value.pop();
                         } else {
-                            // 在实际应用中，应该分别存储分类和回归的历史记录
-                            history.value.unshift(historyItem);
-                            if (history.value.length > 5) history.value.pop();
+                            regressionHistory.value.unshift(historyItem);
+                            if (regressionHistory.value.length > 5) regressionHistory.value.pop();
                         }
-                        
+
+
                         latestResult.value = result;
                         selectedHistoryIndex.value = 0;
-                        
+
                         // 更新图表
                         updateRadarChart();
                         updateDetailChart();
+
+                        // ... 后续处理结果的代码不变 ...
                     } catch (error) {
                         console.error('训练失败:', error);
-                        alert('训练失败，请检查参数配置');
+                        alert('训练失败，请检查参数配置或后端服务');
                     } finally {
                         clearInterval(timer);
                         isLoading.value = false;
                     }
                 };
 
-                const simulateTraining = (config) => {
-                    // 模拟训练过程
-                    return new Promise((resolve) => {
-                        setTimeout(() => {
-                            // 生成模拟结果
-                            const metrics = {};
-                            
-                            if (config.task_type === 'classification') {
-                                metrics['Accuracy'] = 0.7 + Math.random() * 0.3;
-                                metrics['Precision'] = 0.7 + Math.random() * 0.3;
-                                metrics['Recall'] = 0.7 + Math.random() * 0.3;
-                                metrics['F1 Score'] = 0.7 + Math.random() * 0.3;
-                            } else {
-                                metrics['MSE'] = Math.random() * 10;
-                                metrics['RMSE'] = Math.sqrt(metrics['MSE']);
-                                metrics['MAE'] = Math.random() * 5;
-                                metrics['R2 Score'] = 0.5 + Math.random() * 0.5;
-                            }
-                            
-                            // 生成模拟预测结果
-                            const testSize = 50;
-                            const testPredictions = [];
-                            const testTargets = [];
-                            
-                            for (let i = 0; i < testSize; i++) {
-                                if (config.task_type === 'classification') {
-                                    testPredictions.push(Math.floor(Math.random() * 3));
-                                    testTargets.push(Math.floor(Math.random() * 3));
-                                } else {
-                                    testPredictions.push(Math.random() * 100);
-                                    testTargets.push(Math.random() * 100);
-                                }
-                            }
-                            
-                            resolve({
-                                task_type: config.task_type,
-                                model_name: config.model_name,
-                                dataset_name: config.dataset_name,
-                                metrics,
-                                test_predictions: testPredictions,
-                                test_targets: testTargets,
-                                train_loss_history: Array.from({ length: 10 }, (_, i) => Math.exp(-i / 3) + Math.random() * 0.1)
-                            });
-                        }, estimatedTime.value * 1000);
-                    });
-                };
+                // const simulateTraining = (config) => {
+                //     // 模拟训练过程
+                //     return new Promise((resolve) => {
+                //         setTimeout(() => {
+                //             // 生成模拟结果
+                //             const metrics = {};
+
+                //             if (config.task_type === 'classification') {
+                //                 metrics['Accuracy'] = 0.7 + Math.random() * 0.3;
+                //                 metrics['Precision'] = 0.7 + Math.random() * 0.3;
+                //                 metrics['Recall'] = 0.7 + Math.random() * 0.3;
+                //                 metrics['F1 Score'] = 0.7 + Math.random() * 0.3;
+                //             } else {
+                //                 metrics['MSE'] = Math.random() * 10;
+                //                 metrics['RMSE'] = Math.sqrt(metrics['MSE']);
+                //                 metrics['MAE'] = Math.random() * 5;
+                //                 metrics['R2 Score'] = 0.5 + Math.random() * 0.5;
+                //             }
+
+                //             // 生成模拟预测结果
+                //             const testSize = 50;
+                //             const testPredictions = [];
+                //             const testTargets = [];
+
+                //             for (let i = 0; i < testSize; i++) {
+                //                 if (config.task_type === 'classification') {
+                //                     testPredictions.push(Math.floor(Math.random() * 3));
+                //                     testTargets.push(Math.floor(Math.random() * 3));
+                //                 } else {
+                //                     testPredictions.push(Math.random() * 100);
+                //                     testTargets.push(Math.random() * 100);
+                //                 }
+                //             }
+
+                //             resolve({
+                //                 task_type: config.task_type,
+                //                 model_name: config.model_name,
+                //                 dataset_name: config.dataset_name,
+                //                 metrics,
+                //                 test_predictions: testPredictions,
+                //                 test_targets: testTargets,
+                //                 train_loss_history: Array.from({ length: 10 }, (_, i) => Math.exp(-i / 3) + Math.random() * 0.1)
+                //             });
+                //         }, estimatedTime.value * 1000);
+                //     });
+                // };
 
                 const updateRadarChart = () => {
                     if (!radarChart.value) {
                         radarChart.value = echarts.init(document.getElementById('radarChart'));
                     }
-                    
+                    const history = displayHistory.value;
                     // 准备雷达图数据
                     const indicators = [];
                     const data = [];
-                    
+
                     if (currentTask.value === 'classification') {
                         const metrics = ['Accuracy', 'Precision', 'Recall', 'F1 Score'];
                         metrics.forEach(metric => {
                             indicators.push({ name: metric, max: 1 });
                         });
-                        
+
                         history.value.forEach((item, index) => {
                             const values = metrics.map(metric => item.metrics[metric]);
                             data.push({
@@ -797,12 +888,12 @@
                     } else {
                         const metrics = ['MSE', 'RMSE', 'MAE', 'R2 Score'];
                         metrics.forEach(metric => {
-                            indicators.push({ 
-                                name: metric, 
-                                max: metric === 'R2 Score' ? 1 : 10 
+                            indicators.push({
+                                name: metric,
+                                max: metric === 'R2 Score' ? 1 : 10
                             });
                         });
-                        
+
                         history.value.forEach((item, index) => {
                             const values = metrics.map(metric => item.metrics[metric]);
                             data.push({
@@ -814,7 +905,7 @@
                             });
                         });
                     }
-                    
+
                     const option = {
                         title: {
                             text: '模型性能对比',
@@ -833,7 +924,7 @@
                             data: data
                         }]
                     };
-                    
+
                     radarChart.value.setOption(option);
                 };
 
@@ -841,24 +932,24 @@
                     if (!detailChart.value) {
                         detailChart.value = echarts.init(document.getElementById('detailChart'));
                     }
-                    
+
                     if (!latestResult.value) return;
-                    
+
                     // 准备详细图表数据
                     const predictions = latestResult.value.test_predictions;
                     const targets = latestResult.value.test_targets;
-                    
+
                     let option;
-                    
+
                     if (currentTask.value === 'classification') {
                         // 混淆矩阵数据
                         const matrixSize = 3; // 假设有3个类别
                         const matrix = Array(matrixSize).fill(0).map(() => Array(matrixSize).fill(0));
-                        
+
                         for (let i = 0; i < predictions.length; i++) {
                             matrix[targets[i]][predictions[i]]++;
                         }
-                        
+
                         option = {
                             title: {
                                 text: '混淆矩阵',
@@ -896,7 +987,7 @@
                             series: [{
                                 name: '预测值',
                                 type: 'heatmap',
-                                data: matrix.flatMap((row, i) => 
+                                data: matrix.flatMap((row, i) =>
                                     row.map((val, j) => [i, j, val])
                                 ),
                                 label: {
@@ -913,7 +1004,7 @@
                     } else {
                         // 散点图数据
                         const scatterData = predictions.map((pred, i) => [pred, targets[i]]);
-                        
+
                         option = {
                             title: {
                                 text: '预测值 vs 真实值',
@@ -955,7 +1046,7 @@
                             }]
                         };
                     }
-                    
+
                     detailChart.value.setOption(option);
                 };
 
@@ -978,7 +1069,7 @@
                 onMounted(async () => {
                     // 初始化配置
                     await fetchConfig();
-                    
+
                     // 初始化图表
                     window.addEventListener('resize', () => {
                         if (radarChart.value) radarChart.value.resize();
@@ -993,7 +1084,9 @@
                     estimatedTime,
                     selectedHistoryIndex,
                     config,
-                    history,
+                    classificationHistory, // 添加这两行
+                    regressionHistory,
+                    displayHistory,
                     latestResult,
                     availableDatasets,
                     availableModels,
@@ -1008,4 +1101,5 @@
         }).mount('#app');
     </script>
 </body>
+
 </html>

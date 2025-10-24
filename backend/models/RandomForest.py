@@ -1,6 +1,6 @@
 import numpy as np
 from abc import ABC, abstractmethod
-from backend.models.DecisionTree import Node,DecisionTreeClassifier,DecisionTreeRegressor
+from models.DecisionTree import Node,DecisionTreeClassifier,DecisionTreeRegressor
 
 class RandomSplitMixin:
     '''

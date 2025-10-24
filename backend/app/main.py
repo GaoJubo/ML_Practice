@@ -11,26 +11,26 @@ import sys
 import importlib
 import inspect
 from sklearn.model_selection import train_test_split
-from sklearn.decomposition import PCA
 from sklearn.metrics import (
     accuracy_score, precision_score, recall_score, f1_score,
     mean_squared_error, mean_absolute_error, r2_score
 )
-from sklearn.tree import DecisionTreeClassifier, DecisionTreeRegressor
-from sklearn.ensemble import RandomForestClassifier, RandomForestRegressor, GradientBoostingClassifier, GradientBoostingRegressor
-from sklearn.neighbors import KNeighborsClassifier, KNeighborsRegressor
-from sklearn.linear_model import LogisticRegression, LinearRegression
-from sklearn.naive_bayes import GaussianNB
-from sklearn.svm import SVC, SVR
-from sklearn.cluster import KMeans
-from sklearn.datasets import (
-    load_iris, load_breast_cancer, load_wine, load_digits,
-    load_boston, load_diabetes, fetch_california_housing
-)
 import pandas as pd
 
+from models.GBM import GBM_R, GBM_C
+from models.DecisionTree import DecisionTreeClassifier, DecisionTreeRegressor
+from models.KMeans import KMeans
+from models.Knn import KnnClassifier, KnnRegressor
+from models.LinearRegression import LinearRegression
+from models.LogisticRegression import LogisticRegression
+from models.NaiveBayes import NaiveBayes
+from models.RandomForest import RandomForestClassifier, RandomForestRegressor
+from models.SVM import SVM
+from models.PCA import PCA
+
+
 # 导入配置
-from config import (
+from app.config import (
     TASK_MODELS, TASK_DATASETS, CLASSIFICATION_METRICS, 
     REGRESSION_METRICS, PCA_PARAMS, BASELINE_TIMES
 )
@@ -74,23 +74,24 @@ class TrainResult(BaseModel):
 # 数据集加载函数
 def load_dataset(dataset_name: str):
     """根据数据集名称加载数据"""
-    if dataset_name == "iris":
-        data = load_iris()
-    elif dataset_name == "mushroom":
-        # 模拟蘑菇数据集，实际应用中应该从文件加载
-        data = load_breast_cancer()
-    elif dataset_name == "titanic":
-        # 模拟泰坦尼克号数据集，实际应用中应该从文件加载
-        data = load_iris()
-    elif dataset_name == "auto_mpg":
-        # 模拟auto_mpg数据集，实际应用中应该从文件加载
-        data = load_boston()
-    elif dataset_name == "california_housing":
-        data = fetch_california_housing()
-    elif dataset_name == "diabetes":
-        data = load_diabetes()
-    else:
-        raise ValueError(f"未知数据集: {dataset_name}")
+
+    def get_data(path):
+        data_all=np.load(path)
+        return data_all[:,1:],data_all[:,0]
+
+    name_path_dict={
+        "iris":r'dataset/classification/iris.npy',
+        "titanic":r'dataset\classification\titanic.npy',
+        "auto_mpg":r'dataset/regression/auto_mpg.npy',
+        "california_housing":r'dataset\regression\california_housing.npy',
+        "diabetes":r'dataset\regression\diabetes.npy',
+        "mushroom":r'dataset/classification/mushroom.npy',
+    }
+    try:
+        data=get_data(name_path_dict[dataset_name])
+    except :
+        raise NameError('不存在该数据集')
+
     
     return data
 
@@ -101,7 +102,7 @@ def train_and_evaluate(request: TrainRequest):
     
     # 加载数据集
     data = load_dataset(request.dataset_name)
-    X, y = data.data, data.target
+    X, y = data[0], data[1]
     
     # 数据分割
     X_train, X_test, y_train, y_test = train_test_split(
@@ -112,7 +113,7 @@ def train_and_evaluate(request: TrainRequest):
     if request.use_pca:
         n_components = request.pca_params.get("n_components", PCA_PARAMS["n_components"])
         pca = PCA(n_components=n_components)
-        X_train = pca.fit_transform(X_train)
+        X_train = pca.fit(X_train).transform(X_train)
         X_test = pca.transform(X_test)
     
     # 获取模型类
@@ -126,21 +127,21 @@ def train_and_evaluate(request: TrainRequest):
     elif request.model_name == "RandomForestRegressor":
         model_class = RandomForestRegressor
     elif request.model_name == "GBM_C":
-        model_class = GradientBoostingClassifier
+        model_class = GBM_C
     elif request.model_name == "GBM_R":
-        model_class = GradientBoostingRegressor
+        model_class = GBM_R
     elif request.model_name == "KnnClassifier":
-        model_class = KNeighborsClassifier
+        model_class = KnnClassifier
     elif request.model_name == "KnnRegressor":
-        model_class = KNeighborsRegressor
+        model_class = KnnRegressor
     elif request.model_name == "LogisticRegression":
         model_class = LogisticRegression
     elif request.model_name == "LinearRegression":
         model_class = LinearRegression
     elif request.model_name == "NaiveBayes":
-        model_class = GaussianNB
+        model_class = NaiveBayes
     elif request.model_name == "SVM":
-        model_class = SVC
+        model_class = SVM
     elif request.model_name == "KMeans":
         model_class = KMeans
     else:
@@ -223,6 +224,10 @@ async def train_model(request: TrainRequest):
         result = train_and_evaluate(request)
         return result
     except Exception as e:
+        import logging
+        logger = logging.getLogger(__name__)
+
+        logger.error("模型训练过程中发生异常", exc_info=True)
         raise HTTPException(status_code=500, detail=str(e))
 
 @app.get("/")

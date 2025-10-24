@@ -1,8 +1,17 @@
+import sys
+import os
+
+target_path = os.path.join(os.getcwd(), 'models')#main.py将在backend目录下启动
+sys.path.insert(0, target_path)
+# print(sys.path)
+
 import numpy as np
 from DecisionTree import DecisionTreeRegressor,Node
 from abc import ABC, abstractmethod
 from utils import check_Feature_Label_Alignment
 from joblib import Parallel, delayed
+
+
 
 class BasicRegressor(DecisionTreeRegressor):
     '''

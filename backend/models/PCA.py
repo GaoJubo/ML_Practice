@@ -41,6 +41,8 @@ class PCA:
             self.components_=eigenvectors
         else:
             self.components_ = eigenvectors[:,:self.n_components]
+        
+        return self
 
     def transform(self,X):
         X=xp.asanyarray(X)
