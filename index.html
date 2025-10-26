@@ -543,6 +543,7 @@
 
         createApp({
             setup() {
+                const API_BASE_URL = 'http://localhost:8000';
                 // 状态管理
                 const currentTask = ref('classification');
                 const isLoading = ref(false);
@@ -667,31 +668,63 @@
                 const fetchConfig = async () => {
                     // 模拟从后端获取配置信息
                     // 实际应用中应该调用 API: GET /api/v1/config
-                    return new Promise((resolve) => {
-                        setTimeout(() => {
-                            resolve({
-                                TASK_MODELS: {
-                                    "classification": ["DecisionTreeClassifier", "GBM_C", "KMeans", "KnnClassifier", "LogisticRegression", "NaiveBayes", "RandomForestClassifier", "SVM"],
-                                    "regression": ["GBM_R", "DecisionTreeRegressor", "KnnRegressor", "LinearRegression", "RandomForestRegressor"]
-                                },
-                                TASK_DATASETS: {
-                                    "classification": ["iris", "mushroom", "titanic"],
-                                    "regression": ["auto_mpg", "california_housing", "diabetes"]
-                                },
-                                CLASSIFICATION_METRICS: ["Accuracy", "Precision", "Recall", "F1 Score"],
-                                REGRESSION_METRICS: ["MSE", "RMSE", "MAE", "R2 Score"],
-                                PCA_PARAMS: {
-                                    "n_components": 2
-                                },
-                                BASELINE_TIMES: {
-                                    "DecisionTreeClassifier_iris": 0.05,
-                                    "SVM_california_housing": 2.5,
-                                    "LinearRegression_diabetes": 0.03,
-                                    "RandomForestClassifier_mushroom": 0.8
-                                }
-                            });
-                        }, 500);
-                    });
+                    // return new Promise((resolve) => {
+                    //     setTimeout(() => {
+                    //         resolve({
+                    //             TASK_MODELS: {
+                    //                 "classification": ["DecisionTreeClassifier", "GBM_C", "KMeans", "KnnClassifier", "LogisticRegression", "NaiveBayes", "RandomForestClassifier", "SVM"],
+                    //                 "regression": ["GBM_R", "DecisionTreeRegressor", "KnnRegressor", "LinearRegression", "RandomForestRegressor"]
+                    //             },
+                    //             TASK_DATASETS: {
+                    //                 "classification": ["iris", "mushroom", "titanic"],
+                    //                 "regression": ["auto_mpg", "california_housing", "diabetes"]
+                    //             },
+                    //             CLASSIFICATION_METRICS: ["Accuracy", "Precision", "Recall", "F1 Score"],
+                    //             REGRESSION_METRICS: ["MSE", "RMSE", "MAE", "R2 Score"],
+                    //             PCA_PARAMS: {
+                    //                 "n_components": 2
+                    //             },
+                    //             BASELINE_TIMES: {
+                    //                 "DecisionTreeClassifier_iris": 0.05,
+                    //                 "SVM_california_housing": 2.5,
+                    //                 "LinearRegression_diabetes": 0.03,
+                    //                 "RandomForestClassifier_mushroom": 0.8
+                    //             }
+                    //         });
+                    //     }, 500);
+                    // });
+
+                    try {
+                        const response = await fetch(`${API_BASE_URL}/api/v1/config`);
+                        if (!response.ok) {
+                            throw new Error('获取配置失败');
+                        }
+                        return await response.json();
+                    } catch (error) {
+                        console.error('获取配置失败:', error);
+                        // 返回默认配置作为后备
+                        return {
+                            TASK_MODELS: {
+                                "classification": ["DecisionTreeClassifier", "GBM_C", "KMeans", "KnnClassifier", "LogisticRegression", "NaiveBayes", "RandomForestClassifier", "SVM"],
+                                "regression": ["GBM_R", "DecisionTreeRegressor", "KnnRegressor", "LinearRegression", "RandomForestRegressor"]
+                            },
+                            TASK_DATASETS: {
+                                "classification": ["iris", "mushroom", "titanic"],
+                                "regression": ["auto_mpg", "california_housing", "diabetes"]
+                            },
+                            CLASSIFICATION_METRICS: ["Accuracy", "Precision", "Recall", "F1 Score"],
+                            REGRESSION_METRICS: ["MSE", "RMSE", "MAE", "R2 Score"],
+                            PCA_PARAMS: {
+                                "n_components": 2
+                            },
+                            BASELINE_TIMES: {
+                                "DecisionTreeClassifier_iris": 0.05,
+                                "SVM_california_housing": 2.5,
+                                "LinearRegression_diabetes": 0.03,
+                                "RandomForestClassifier_mushroom": 0.8
+                            }
+                        };
+                    }
                 };
 
                 const runTraining = async () => {
@@ -710,25 +743,75 @@
                         elapsedTime.value += 0.1;
                     }, 100);
 
+                    // try {
+                    //     // 模拟API调用
+                    //     // 实际应用中应该调用 API: POST /api/v1/train
+                    //     const result = await simulateTraining(config);
+
+                    //     // 添加到历史记录
+                    //     const historyItem = {
+                    //         ...result,
+                    //         timestamp: new Date()
+                    //     };
+
+                    //     if (config.task_type === 'classification') {
+                    //         history.value.unshift(historyItem);
+                    //         if (history.value.length > 5) history.value.pop();
+                    //     } else {
+                    //         // 在实际应用中，应该分别存储分类和回归的历史记录
+                    //         history.value.unshift(historyItem);
+                    //         if (history.value.length > 5) history.value.pop();
+                    //     }
+
+                    //     latestResult.value = result;
+                    //     selectedHistoryIndex.value = 0;
+
+                    //     // 更新图表
+                    //     updateRadarChart();
+                    //     updateDetailChart();
+                    // } catch (error) {
+                    //     console.error('训练失败:', error);
+                    //     alert('训练失败，请检查参数配置');
+                    // } finally {
+                    //     clearInterval(timer);
+                    //     isLoading.value = false;
+                    // }
+
                     try {
-                        // 模拟API调用
-                        // 实际应用中应该调用 API: POST /api/v1/train
-                        const result = await simulateTraining(config);
+                        // 准备请求数据
+                        const requestData = {
+                            task_type: config.task_type,
+                            dataset_name: config.dataset_name,
+                            model_name: config.model_name,
+                            split_ratio: config.split_ratio,
+                            use_pca: config.use_pca,
+                            pca_params: config.pca_params,
+                            model_params: config.model_params
+                        };
+
+                        // 调用后端API
+                        const response = await fetch(`${API_BASE_URL}/api/v1/train`, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                            },
+                            body: JSON.stringify(requestData)
+                        });
+
+                        if (!response.ok) {
+                            throw new Error(`训练失败: ${response.statusText}`);
+                        }
+
+                        const result = await response.json();
 
                         // 添加到历史记录
                         const historyItem = {
                             ...result,
-                            timestamp: new Date()
+                            timestamp: new Date(result.timestamp)
                         };
 
-                        if (config.task_type === 'classification') {
-                            history.value.unshift(historyItem);
-                            if (history.value.length > 5) history.value.pop();
-                        } else {
-                            // 在实际应用中，应该分别存储分类和回归的历史记录
-                            history.value.unshift(historyItem);
-                            if (history.value.length > 5) history.value.pop();
-                        }
+                        history.value.unshift(historyItem);
+                        if (history.value.length > 5) history.value.pop();
 
                         latestResult.value = result;
                         selectedHistoryIndex.value = 0;
@@ -738,7 +821,7 @@
                         updateDetailChart();
                     } catch (error) {
                         console.error('训练失败:', error);
-                        alert('训练失败，请检查参数配置');
+                        alert(`训练失败: ${error.message}`);
                     } finally {
                         clearInterval(timer);
                         isLoading.value = false;
