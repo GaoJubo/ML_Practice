@@ -500,8 +500,8 @@
 
                         <!-- 历史记录标签页 -->
                         <div class="tab-pane fade" id="history" role="tabpanel" aria-labelledby="history-tab">
-                            <div v-if="displayHistory.length > 0">
-                                <div class="history-item" v-for="(item, index) in displayHistory" :key="index"
+                            <div v-if="history.length > 0">
+                                <div class="history-item" v-for="(item, index) in history" :key="index"
                                     :class="{ active: selectedHistoryIndex === index }"
                                     @click="selectHistoryItem(index)">
                                     <div class="history-item-header">
@@ -564,14 +564,7 @@
                 });
 
                 // 历史记录
-                const classificationHistory = ref([]);
-                const regressionHistory = ref([]);
-
-                // 同时，我们还需要一个计算属性，来根据当前任务显示对应的历史
-                const displayHistory = computed(() => {
-                    return currentTask.value === 'classification' ? classificationHistory.value : regressionHistory.value;
-                });
-
+                const history = ref([]);
                 const latestResult = ref(null);
 
                 // 计算属性
@@ -674,44 +667,31 @@
                 const fetchConfig = async () => {
                     // 模拟从后端获取配置信息
                     // 实际应用中应该调用 API: GET /api/v1/config
-                    // return new Promise((resolve) => {
-                    //     setTimeout(() => {
-                    //         resolve({
-                    //             TASK_MODELS: {
-                    //                 "classification": ["DecisionTreeClassifier", "GBM_C", "KMeans", "KnnClassifier", "LogisticRegression", "NaiveBayes", "RandomForestClassifier", "SVM"],
-                    //                 "regression": ["GBM_R", "DecisionTreeRegressor", "KnnRegressor", "LinearRegression", "RandomForestRegressor"]
-                    //             },
-                    //             TASK_DATASETS: {
-                    //                 "classification": ["iris", "mushroom", "titanic"],
-                    //                 "regression": ["auto_mpg", "california_housing", "diabetes"]
-                    //             },
-                    //             CLASSIFICATION_METRICS: ["Accuracy", "Precision", "Recall", "F1 Score"],
-                    //             REGRESSION_METRICS: ["MSE", "RMSE", "MAE", "R2 Score"],
-                    //             PCA_PARAMS: {
-                    //                 "n_components": 2
-                    //             },
-                    //             BASELINE_TIMES: {
-                    //                 "DecisionTreeClassifier_iris": 0.05,
-                    //                 "SVM_california_housing": 2.5,
-                    //                 "LinearRegression_diabetes": 0.03,
-                    //                 "RandomForestClassifier_mushroom": 0.8
-                    //             }
-                    //         });
-                    //     }, 500);
-                    // });
-
-                    try {
-                        const response = await fetch('http://localhost:8000/api/v1/config'); // 修改这里
-                        if (!response.ok) {
-                            throw new Error('网络响应错误');
-                        }
-                        const configData = await response.json();
-                        return configData;
-                    } catch (error) {
-                        console.error('获取配置失败:', error);
-                        // 可以在这里添加错误提示给用户
-                        return null; // 或者返回一个默认配置
-                    }
+                    return new Promise((resolve) => {
+                        setTimeout(() => {
+                            resolve({
+                                TASK_MODELS: {
+                                    "classification": ["DecisionTreeClassifier", "GBM_C", "KMeans", "KnnClassifier", "LogisticRegression", "NaiveBayes", "RandomForestClassifier", "SVM"],
+                                    "regression": ["GBM_R", "DecisionTreeRegressor", "KnnRegressor", "LinearRegression", "RandomForestRegressor"]
+                                },
+                                TASK_DATASETS: {
+                                    "classification": ["iris", "mushroom", "titanic"],
+                                    "regression": ["auto_mpg", "california_housing", "diabetes"]
+                                },
+                                CLASSIFICATION_METRICS: ["Accuracy", "Precision", "Recall", "F1 Score"],
+                                REGRESSION_METRICS: ["MSE", "RMSE", "MAE", "R2 Score"],
+                                PCA_PARAMS: {
+                                    "n_components": 2
+                                },
+                                BASELINE_TIMES: {
+                                    "DecisionTreeClassifier_iris": 0.05,
+                                    "SVM_california_housing": 2.5,
+                                    "LinearRegression_diabetes": 0.03,
+                                    "RandomForestClassifier_mushroom": 0.8
+                                }
+                            });
+                        }, 500);
+                    });
                 };
 
                 const runTraining = async () => {
@@ -730,56 +710,10 @@
                         elapsedTime.value += 0.1;
                     }, 100);
 
-                    // try {
-                    //     // 模拟API调用
-                    //     // 实际应用中应该调用 API: POST /api/v1/train
-                    //     const result = await simulateTraining(config);
-
-                    //     // 添加到历史记录
-                    //     const historyItem = {
-                    //         ...result,
-                    //         timestamp: new Date()
-                    //     };
-
-                    //     if (config.task_type === 'classification') {
-                    //         history.value.unshift(historyItem);
-                    //         if (history.value.length > 5) history.value.pop();
-                    //     } else {
-                    //         // 在实际应用中，应该分别存储分类和回归的历史记录
-                    //         history.value.unshift(historyItem);
-                    //         if (history.value.length > 5) history.value.pop();
-                    //     }
-
-                    //     latestResult.value = result;
-                    //     selectedHistoryIndex.value = 0;
-
-                    //     // 更新图表
-                    //     updateRadarChart();
-                    //     updateDetailChart();
-                    // } catch (error) {
-                    //     console.error('训练失败:', error);
-                    //     alert('训练失败，请检查参数配置');
-                    // } finally {
-                    //     clearInterval(timer);
-                    //     isLoading.value = false;
-                    // }
-
-
                     try {
-                        // 原来的代码是模拟的，需要替换成真实的API调用
-                        const response = await fetch('http://localhost:8000/api/v1/train', { // 修改这里
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json'
-                            },
-                            body: JSON.stringify(config) // 将配置发送给后端
-                        });
-
-                        if (!response.ok) {
-                            throw new Error('训练请求失败');
-                        }
-
-                        const result = await response.json(); // 获取后端返回的真实结果
+                        // 模拟API调用
+                        // 实际应用中应该调用 API: POST /api/v1/train
+                        const result = await simulateTraining(config);
 
                         // 添加到历史记录
                         const historyItem = {
@@ -788,13 +722,13 @@
                         };
 
                         if (config.task_type === 'classification') {
-                            classificationHistory.value.unshift(historyItem);
-                            if (classificationHistory.value.length > 5) classificationHistory.value.pop();
+                            history.value.unshift(historyItem);
+                            if (history.value.length > 5) history.value.pop();
                         } else {
-                            regressionHistory.value.unshift(historyItem);
-                            if (regressionHistory.value.length > 5) regressionHistory.value.pop();
+                            // 在实际应用中，应该分别存储分类和回归的历史记录
+                            history.value.unshift(historyItem);
+                            if (history.value.length > 5) history.value.pop();
                         }
-
 
                         latestResult.value = result;
                         selectedHistoryIndex.value = 0;
@@ -802,69 +736,67 @@
                         // 更新图表
                         updateRadarChart();
                         updateDetailChart();
-
-                        // ... 后续处理结果的代码不变 ...
                     } catch (error) {
                         console.error('训练失败:', error);
-                        alert('训练失败，请检查参数配置或后端服务');
+                        alert('训练失败，请检查参数配置');
                     } finally {
                         clearInterval(timer);
                         isLoading.value = false;
                     }
                 };
 
-                // const simulateTraining = (config) => {
-                //     // 模拟训练过程
-                //     return new Promise((resolve) => {
-                //         setTimeout(() => {
-                //             // 生成模拟结果
-                //             const metrics = {};
+                const simulateTraining = (config) => {
+                    // 模拟训练过程
+                    return new Promise((resolve) => {
+                        setTimeout(() => {
+                            // 生成模拟结果
+                            const metrics = {};
 
-                //             if (config.task_type === 'classification') {
-                //                 metrics['Accuracy'] = 0.7 + Math.random() * 0.3;
-                //                 metrics['Precision'] = 0.7 + Math.random() * 0.3;
-                //                 metrics['Recall'] = 0.7 + Math.random() * 0.3;
-                //                 metrics['F1 Score'] = 0.7 + Math.random() * 0.3;
-                //             } else {
-                //                 metrics['MSE'] = Math.random() * 10;
-                //                 metrics['RMSE'] = Math.sqrt(metrics['MSE']);
-                //                 metrics['MAE'] = Math.random() * 5;
-                //                 metrics['R2 Score'] = 0.5 + Math.random() * 0.5;
-                //             }
+                            if (config.task_type === 'classification') {
+                                metrics['Accuracy'] = 0.7 + Math.random() * 0.3;
+                                metrics['Precision'] = 0.7 + Math.random() * 0.3;
+                                metrics['Recall'] = 0.7 + Math.random() * 0.3;
+                                metrics['F1 Score'] = 0.7 + Math.random() * 0.3;
+                            } else {
+                                metrics['MSE'] = Math.random() * 10;
+                                metrics['RMSE'] = Math.sqrt(metrics['MSE']);
+                                metrics['MAE'] = Math.random() * 5;
+                                metrics['R2 Score'] = 0.5 + Math.random() * 0.5;
+                            }
 
-                //             // 生成模拟预测结果
-                //             const testSize = 50;
-                //             const testPredictions = [];
-                //             const testTargets = [];
+                            // 生成模拟预测结果
+                            const testSize = 50;
+                            const testPredictions = [];
+                            const testTargets = [];
 
-                //             for (let i = 0; i < testSize; i++) {
-                //                 if (config.task_type === 'classification') {
-                //                     testPredictions.push(Math.floor(Math.random() * 3));
-                //                     testTargets.push(Math.floor(Math.random() * 3));
-                //                 } else {
-                //                     testPredictions.push(Math.random() * 100);
-                //                     testTargets.push(Math.random() * 100);
-                //                 }
-                //             }
+                            for (let i = 0; i < testSize; i++) {
+                                if (config.task_type === 'classification') {
+                                    testPredictions.push(Math.floor(Math.random() * 3));
+                                    testTargets.push(Math.floor(Math.random() * 3));
+                                } else {
+                                    testPredictions.push(Math.random() * 100);
+                                    testTargets.push(Math.random() * 100);
+                                }
+                            }
 
-                //             resolve({
-                //                 task_type: config.task_type,
-                //                 model_name: config.model_name,
-                //                 dataset_name: config.dataset_name,
-                //                 metrics,
-                //                 test_predictions: testPredictions,
-                //                 test_targets: testTargets,
-                //                 train_loss_history: Array.from({ length: 10 }, (_, i) => Math.exp(-i / 3) + Math.random() * 0.1)
-                //             });
-                //         }, estimatedTime.value * 1000);
-                //     });
-                // };
+                            resolve({
+                                task_type: config.task_type,
+                                model_name: config.model_name,
+                                dataset_name: config.dataset_name,
+                                metrics,
+                                test_predictions: testPredictions,
+                                test_targets: testTargets,
+                                train_loss_history: Array.from({ length: 10 }, (_, i) => Math.exp(-i / 3) + Math.random() * 0.1)
+                            });
+                        }, estimatedTime.value * 1000);
+                    });
+                };
 
                 const updateRadarChart = () => {
                     if (!radarChart.value) {
                         radarChart.value = echarts.init(document.getElementById('radarChart'));
                     }
-                    const history = displayHistory.value;
+
                     // 准备雷达图数据
                     const indicators = [];
                     const data = [];
@@ -929,6 +861,9 @@
                 };
 
                 const updateDetailChart = () => {
+                    const chartElement = document.getElementById('detailChart');
+                    if (!chartElement) return;
+
                     if (!detailChart.value) {
                         detailChart.value = echarts.init(document.getElementById('detailChart'));
                     }
@@ -1070,6 +1005,12 @@
                     // 初始化配置
                     await fetchConfig();
 
+                    // 延迟初始化图表，确保 DOM 完全加载
+                    setTimeout(() => {
+                        updateRadarChart();
+                        updateDetailChart();
+                    }, 100);
+
                     // 初始化图表
                     window.addEventListener('resize', () => {
                         if (radarChart.value) radarChart.value.resize();
@@ -1084,9 +1025,7 @@
                     estimatedTime,
                     selectedHistoryIndex,
                     config,
-                    classificationHistory, // 添加这两行
-                    regressionHistory,
-                    displayHistory,
+                    history,
                     latestResult,
                     availableDatasets,
                     availableModels,
