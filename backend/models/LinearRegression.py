@@ -67,13 +67,16 @@ class LinearRegression():
         #数据校验
         X=np.asarray(X,dtype=np.float64)
         y=np.asarray(y,dtype=np.float64)
-
+        # print(f'原始输入 {X.shape} {y.shape}')
         X,y=check_Feature_Label_Alignment(X,y)
         self._X_dim=X.shape[1]
+        # print(f'维度检查 {X.shape} {y.shape}')
+
 
         #数据标准化
         X,self._X_mean, self._X_std, y , self._y_mean, self._y_std= \
-        (*normalize_data(X),*normalize_data(y)) if self.normalize else (X,y,np.zeros(X.shape[1]),np.ones(X.shape[1]),np.zeros(y.shape[1]),np.ones(y.shape[1]))
+        (*normalize_data(X),*normalize_data(y)) if self.normalize else (X,np.zeros(X.shape[1]),np.ones(X.shape[1]),y,np.zeros(y.shape[1]),np.ones(y.shape[1]))
+        # print(f'标准化 {X.shape} {y.shape}')
 
         #根据不同的正则化选项进行训练
         if self.penalty=='none':
@@ -109,8 +112,9 @@ class LinearRegression():
     
 
 if __name__=='__main__':
-    X_train=10*np.random.rand(10000,527)
-    Y_train=5+3*X_train@np.random.rand(527,10)+np.random.randn(10000,10)
+    X_train=np.load(r'E:\someShy\ML_Practice\backend\dataset\regression\auto_mpg.npy')[:,1:]
+    Y_train=np.load(r'E:\someShy\ML_Practice\backend\dataset\regression\auto_mpg.npy')[:,0]
+    
 
     for penalty in ['none','l2','l1']:
         model=LinearRegression(normalize=True,penalty=penalty,alpha=0.1,learning_rate=0.01)

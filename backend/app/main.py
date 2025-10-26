@@ -164,11 +164,12 @@ def train_and_evaluate(request: TrainRequest):
     model = model_class(**model_params)
     
     # 训练模型
+    # print(f'{request.model_name}--{X_train.shape},{y_train.shape}')
     model.fit(X_train, y_train)
     
     # 预测
     y_pred = model.predict(X_test)
-    
+    y_pred = np.nan_to_num(y_pred, nan=0.0)
     # 计算评估指标
     metrics = {}
     if request.task_type == "classification":

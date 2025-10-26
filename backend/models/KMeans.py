@@ -27,6 +27,7 @@ class KMeans:
 
         self._X_mean = None
         self._X_std = None
+        self.clusters_labels=[]
 
     def _calculate_distance(self, X, centroids):
         """
@@ -59,6 +60,19 @@ class KMeans:
         self.y = y
         self._fit(X)
 
+        predict_labels=self.labels_
+        cluster_labels=np.zeros(self.n_clusters)
+        for k in range(self.n_clusters):
+            mask = (predict_labels == k)
+            most_common = Counter(np.squeeze(self.y[mask])).most_common(1)
+            cluster_labels[k] = most_common[0][0]
+            
+
+
+        self.clusters_labels=cluster_labels
+
+        # print(f'训练结束{X.shape} {y.shape}')
+
     def _fit(self, X):
 
         #数据预处理
@@ -79,18 +93,19 @@ class KMeans:
         for i in range(self.max_iters):
             #计算距离矩阵,并得到簇标签列表
             disances = self._calculate_distance(X, self.centroids)
-            self.labels = np.argmin(disances, axis=1)
+            self.labels_ = np.argmin(disances, axis=1)
 
             #更新每个质心
             new_centroids = np.zeros_like(self.centroids)
             for k in range(self.n_clusters):
-                mask=(self.labels==k)
+                mask=(self.labels_==k)
                 if np.any(mask):
                     new_centroids[k] = X[mask].mean(axis=0)
 
             if np.linalg.norm(new_centroids - self.centroids) < self.tol:
                 break
             self.centroids = new_centroids
+
     
     def _predict(self, X):
         '''
@@ -118,8 +133,7 @@ class KMeans:
         predictions=np.empty(X.shape[0],dtype=np.int64)
         for k in range(self.n_clusters):
             mask = (predict_labels == k)
-            most_common = Counter(np.squeeze(self.y[mask])).most_common(1)
-            predictions[mask] = most_common[0][0]
+            predictions[mask] = self.clusters_labels[k]
 
         return predictions
     
@@ -135,7 +149,7 @@ if __name__ == "__main__":
 
     y=[0,0,1,1,0,1]
 
-    kmeans=KMeans(normalize=True)
+    kmeans=KMeans(max_iters=100, tol=1, random_state=313, normalize=False)
     kmeans.fit(X,y) 
     preds=kmeans.predict(X)
     print("预测结果:",preds)

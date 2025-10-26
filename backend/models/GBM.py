@@ -122,6 +122,7 @@ class GBM_R(GBM):
         if X.shape[1]!=self._X_dim:
             raise ValueError('预测数据的特征数量与训练数据不符合')
         
+        
         def meta_predict(tree,X):
             return tree.predict(X)
         
@@ -130,11 +131,13 @@ class GBM_R(GBM):
             for tree in self._trees
         )
 
-        results_list=np.array(results_list)
+        results_list=np.array(results_list).squeeze()
+        
         result=np.sum(results_list,axis=0)*self.learning_rate
+
         result+=self.F0
 
-        return self.F0
+        return result
     
 class GBM_C(GBM):
     def _sigmoid(self,z):
@@ -191,6 +194,7 @@ class GBM_C(GBM):
         )
 
         results_list=np.array(results_list)
+        # print(f'---results_lists.shape{results_list.shape}')
         result=np.sum(results_list,axis=0)*self.learning_rate
         result+=self.F0
 
@@ -225,7 +229,7 @@ if __name__=='__main__':
 
     # print(f'回归GBM的mse:{np.mean((y_hat-y_r)**2)}')
 
-    data=np.load(r'E:\someShy\ML_Practice\backend\dataset\mushroom.npy')
+    data=np.load(r'E:\someShy\ML_Practice\backend\dataset\classification\mushroom.npy')
     X=data[:,1:]
     y=data[:,0]
 
