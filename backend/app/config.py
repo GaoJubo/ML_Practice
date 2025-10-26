@@ -28,28 +28,27 @@ PCA_PARAMS = {
 # --- 模型超参数配置 ---
 MODEL_PARAMS = {
     "DecisionTreeClassifier": {
-        "max_depth": None,
+        "max_depth": 100,
         "min_samples_split": 2,
-        "min_samples_leaf": 1
+        "random_state": None
     },
     "DecisionTreeRegressor": {
-        "max_depth": None,
+        "max_depth": 100,
         "min_samples_split": 2,
-        "min_samples_leaf": 1
+        "random_state": None
     },
     "RandomForestClassifier": {
         "n_estimators": 100,
-        "max_features": "sqrt",
-        "max_depth": None,
+        "max_depth": 10,
         "min_samples_split": 2,
-        "min_samples_leaf": 1
+               "random_state": None
+
     },
     "RandomForestRegressor": {
         "n_estimators": 100,
-        "max_features": "sqrt",
-        "max_depth": None,
+        "max_depth": 10,
         "min_samples_split": 2,
-        "min_samples_leaf": 1
+               "random_state": None
     },
     "GBM_C": {
         "n_estimators": 100,
@@ -62,35 +61,43 @@ MODEL_PARAMS = {
         "max_depth": 3
     },
     "KnnClassifier": {
-        "n_neighbors": 5,
-        "weights": "uniform",
-        "algorithm": "auto"
+        "k": 3,
+        'normalize':True
     },
     "KnnRegressor": {
-        "n_neighbors": 5,
-        "weights": "uniform",
-        "algorithm": "auto"
+        "k": 3,
+        'normalize':True
     },
     "LogisticRegression": {
-        "C": 1.0,
-        "fit_intercept": True,
-        "max_iter": 100
+        "normalize":False,
+        'lmbda':0.5,
+        'max_iter':10000,
+        'tol':0.001,
+        "learning_rate":0.1,
+        "l1_ratio":0.5
     },
     "LinearRegression": {
-        "fit_intercept": True
+        "normalize":False,
+        "penalty":'none',
+        'alpha':1.0,
+        'max_iter':10000,
+        'tol':0.001,
+        "learning_rate":0.1,
+        "random_seed":None
     },
     "NaiveBayes": {
-        "var_smoothing": 1e-9
+        "alpha": 1.0
     },
     "SVM": {
-        "C": 1.0,
-        "kernel": "rbf",
-        "gamma": "scale"
+        "learning_rate":0.001,
+        "lambda_param":0.01,
+        "n_iters":100
     },
     "KMeans": {
-        "n_clusters": 3,
-        "init": "k-means++",
-        "n_init": 10
+        "max_iter":300,
+        "tol":0.0001,
+        "random_state":31,
+        "normalize":True
     }
 }
 

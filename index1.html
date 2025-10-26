@@ -544,83 +544,6 @@
         createApp({
             setup() {
                 const API_BASE_URL = 'http://localhost:8000';
-                
-                // --- 修正: 将 MODEL_PARAMS 提升到 setup 作用域，以便在 runTraining 中访问 ---
-                const MODEL_PARAMS = {
-                    "DecisionTreeClassifier": {
-                        "max_depth": 100,
-                        "min_samples_split": 2,
-                        "random_state": null
-                    },
-                    "DecisionTreeRegressor": {
-                        "max_depth": 100,
-                        "min_samples_split": 2,
-                        "random_state": null
-                    },
-                    "RandomForestClassifier": {
-                        "n_estimators": 100,
-                        "max_depth": 10,
-                        "min_samples_split": 2,
-                        "random_state": null
-                    },
-                    "RandomForestRegressor": {
-                        "n_estimators": 100,
-                        "max_depth": 10,
-                        "min_samples_split": 2,
-                        "random_state": null
-                    },
-                    "GBM_C": {
-                        "n_estimators": 100,
-                        "learning_rate": 0.1,
-                        "max_depth": 3
-                    },
-                    "GBM_R": {
-                        "n_estimators": 100,
-                        "learning_rate": 0.1,
-                        "max_depth": 3
-                    },
-                    "KnnClassifier": {
-                        "k": 3,
-                        "normalize": true
-                    },
-                    "KnnRegressor": {
-                        "k": 3,
-                        "normalize": true
-                    },
-                    "LogisticRegression": {
-                        "normalize": false,
-                        "lmbda": 0.5,
-                        "max_iter": 10000,
-                        "tol": 0.001,
-                        "learning_rate": 0.1,
-                        "l1_ratio": 0.5
-                    },
-                    "LinearRegression": {
-                        "normalize": false,
-                        "penalty": "none",
-                        "alpha": 1.0,
-                        "max_iter": 10000,
-                        "tol": 0.001,
-                        "learning_rate": 0.1,
-                        "random_seed": null
-                    },
-                    "NaiveBayes": {
-                        "alpha": 1.0
-                    },
-                    "SVM": {
-                        "learning_rate": 0.001,
-                        "lambda_param": 0.01,
-                        "n_iters": 100
-                    },
-                    "KMeans": {
-                        "max_iter": 300,
-                        "tol": 0.0001,
-                        "random_state": 31,
-                        "normalize": true
-                    }
-                };
-                // --- 修正结束 ---
-
                 // 状态管理
                 const currentTask = ref('classification');
                 const isLoading = ref(false);
@@ -670,6 +593,81 @@
                 });
 
                 const modelParams = computed(() => {
+                    // 根据当前选择的模型返回对应的超参数配置
+                    const MODEL_PARAMS = {
+                        "DecisionTreeClassifier": {
+                            "max_depth": 100,
+                            "min_samples_split": 2,
+                            "random_state": null
+                        },
+                        "DecisionTreeRegressor": {
+                            "max_depth": 100,
+                            "min_samples_split": 2,
+                            "random_state": null
+                        },
+                        "RandomForestClassifier": {
+                            "n_estimators": 100,
+                            "max_depth": 10,
+                            "min_samples_split": 2,
+                            "random_state": null
+                        },
+                        "RandomForestRegressor": {
+                            "n_estimators": 100,
+                            "max_depth": 10,
+                            "min_samples_split": 2,
+                            "random_state": null
+                        },
+                        "GBM_C": {
+                            "n_estimators": 100,
+                            "learning_rate": 0.1,
+                            "max_depth": 3
+                        },
+                        "GBM_R": {
+                            "n_estimators": 100,
+                            "learning_rate": 0.1,
+                            "max_depth": 3
+                        },
+                        "KnnClassifier": {
+                            "k": 3,
+                            "normalize": true
+                        },
+                        "KnnRegressor": {
+                            "k": 3,
+                            "normalize": true
+                        },
+                        "LogisticRegression": {
+                            "normalize": false,
+                            "lmbda": 0.5,
+                            "max_iter": 10000,
+                            "tol": 0.001,
+                            "learning_rate": 0.1,
+                            "l1_ratio": 0.5
+                        },
+                        "LinearRegression": {
+                            "normalize": false,
+                            "penalty": "none",
+                            "alpha": 1.0,
+                            "max_iter": 10000,
+                            "tol": 0.001,
+                            "learning_rate": 0.1,
+                            "random_seed": null
+                        },
+                        "NaiveBayes": {
+                            "alpha": 1.0
+                        },
+                        "SVM": {
+                            "learning_rate": 0.001,
+                            "lambda_param": 0.01,
+                            "n_iters": 100
+                        },
+                        "KMeans": {
+                            "max_iter": 300,
+                            "tol": 0.0001,
+                            "random_state": 31,
+                            "normalize": true
+                        }
+                    };
+
                     // 获取当前模型的参数配置
                     const params = MODEL_PARAMS[config.model_name];
 
@@ -749,12 +747,40 @@
                 });
 
                 watch(config.model_name, () => {
-                    // 重置模型参数，确保切换模型后旧参数被清除
+                    // 重置模型参数
                     config.model_params = {};
                 });
 
                 // 方法
                 const fetchConfig = async () => {
+                    // 模拟从后端获取配置信息
+                    // 实际应用中应该调用 API: GET /api/v1/config
+                    // return new Promise((resolve) => {
+                    //     setTimeout(() => {
+                    //         resolve({
+                    //             TASK_MODELS: {
+                    //                 "classification": ["DecisionTreeClassifier", "GBM_C", "KMeans", "KnnClassifier", "LogisticRegression", "NaiveBayes", "RandomForestClassifier", "SVM"],
+                    //                 "regression": ["GBM_R", "DecisionTreeRegressor", "KnnRegressor", "LinearRegression", "RandomForestRegressor"]
+                    //             },
+                    //             TASK_DATASETS: {
+                    //                 "classification": ["iris", "mushroom", "titanic"],
+                    //                 "regression": ["auto_mpg", "california_housing", "diabetes"]
+                    //             },
+                    //             CLASSIFICATION_METRICS: ["Accuracy", "Precision", "Recall", "F1 Score"],
+                    //             REGRESSION_METRICS: ["MSE", "RMSE", "MAE", "R2 Score"],
+                    //             PCA_PARAMS: {
+                    //                 "n_components": 2
+                    //             },
+                    //             BASELINE_TIMES: {
+                    //                 "DecisionTreeClassifier_iris": 0.05,
+                    //                 "SVM_california_housing": 2.5,
+                    //                 "LinearRegression_diabetes": 0.03,
+                    //                 "RandomForestClassifier_mushroom": 0.8
+                    //             }
+                    //         });
+                    //     }, 500);
+                    // });
+
                     try {
                         const response = await fetch(`${API_BASE_URL}/api/v1/config`);
                         if (!response.ok) {
@@ -804,41 +830,41 @@
                         elapsedTime.value += 0.1;
                     }, 100);
 
+                    // try {
+                    //     // 模拟API调用
+                    //     // 实际应用中应该调用 API: POST /api/v1/train
+                    //     const result = await simulateTraining(config);
+
+                    //     // 添加到历史记录
+                    //     const historyItem = {
+                    //         ...result,
+                    //         timestamp: new Date()
+                    //     };
+
+                    //     if (config.task_type === 'classification') {
+                    //         history.value.unshift(historyItem);
+                    //         if (history.value.length > 5) history.value.pop();
+                    //     } else {
+                    //         // 在实际应用中，应该分别存储分类和回归的历史记录
+                    //         history.value.unshift(historyItem);
+                    //         if (history.value.length > 5) history.value.pop();
+                    //     }
+
+                    //     latestResult.value = result;
+                    //     selectedHistoryIndex.value = 0;
+
+                    //     // 更新图表
+                    //     updateRadarChart();
+                    //     updateDetailChart();
+                    // } catch (error) {
+                    //     console.error('训练失败:', error);
+                    //     alert('训练失败，请检查参数配置');
+                    // } finally {
+                    //     clearInterval(timer);
+                    //     isLoading.value = false;
+                    // }
+
                     try {
-                        // --- 修正重点: 参数清洗和过滤 ---
-                        const allValidParams = MODEL_PARAMS[config.model_name] || {};
-                        const validParamKeys = Object.keys(allValidParams);
-
-                        const sanitized_model_params = {};
-
-                        validParamKeys.forEach(key => {
-                            let value = config.model_params[key];
-
-                            // 1. 过滤掉用户未设置或空字符串的值
-                            if (value !== null && value !== undefined && value !== '') {
-                                let convertedValue = value;
-                                
-                                // 2. 尝试将字符串转换为数字或布尔值，以避免后端类型错误
-                                if (typeof value === 'string') {
-                                    // 尝试转换为数字
-                                    if (!isNaN(parseFloat(value)) && isFinite(value)) {
-                                        convertedValue = parseFloat(value);
-                                    } 
-                                    // 尝试转换为布尔值
-                                    else if (value.toLowerCase() === 'true') {
-                                        convertedValue = true;
-                                    } 
-                                    else if (value.toLowerCase() === 'false') {
-                                        convertedValue = false;
-                                    }
-                                    // 保持字符串（例如 penalty="none"）
-                                }
-
-                                sanitized_model_params[key] = convertedValue;
-                            }
-                            // 如果值为空，则不发送该参数，让后端使用默认值
-                        });
-
                         // 准备请求数据
                         const requestData = {
                             task_type: config.task_type,
@@ -847,9 +873,8 @@
                             split_ratio: config.split_ratio,
                             use_pca: config.use_pca,
                             pca_params: config.pca_params,
-                            model_params: sanitized_model_params // 使用清洗后的参数
+                            model_params: config.model_params
                         };
-                        // --- 修正结束 ---
 
                         // 调用后端API
                         const response = await fetch(`${API_BASE_URL}/api/v1/train`, {
@@ -861,10 +886,7 @@
                         });
 
                         if (!response.ok) {
-                            // 尝试从响应体中获取更详细的错误信息
-                            const errorData = await response.json();
-                            const errorMessage = errorData.detail || `训练失败: ${response.statusText}`;
-                            throw new Error(errorMessage);
+                            throw new Error(`训练失败: ${response.statusText}`);
                         }
 
                         const result = await response.json();
