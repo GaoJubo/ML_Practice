@@ -1,0 +1,10 @@
+cupy_cuda12x==13.6.0
+fastapi==0.120.0
+joblib==1.5.2
+numpy==2.3.4
+pandas==2.3.3
+pydantic==2.12.3
+scikit_learn==1.7.2
+scipy==1.16.2
+seaborn==0.13.2
+uvicorn==0.38.0
